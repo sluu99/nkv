@@ -60,7 +60,7 @@ namespace Nkv.Tests.Sql
         }
 
 
-        public void AssertRowExists(string tableName, string key)
+        public void AssertRowExists(string tableName, string key, bool exists = true)
         {
             using (var conn = new SqlConnection(SqlConnectionString))
             {
@@ -71,7 +71,7 @@ namespace Nkv.Tests.Sql
                     cmd.Parameters.Add("@key", System.Data.SqlDbType.NVarChar, 128).Value = key;
                     using (var reader = cmd.ExecuteReader())
                     {
-                        Assert.IsTrue(reader.Read(), string.Format("Cannot find row; table = {0}, key = {1}", tableName, key));
+                        Assert.IsTrue(reader.Read() == exists, string.Format("Cannot find row; table = {0}, key = {1}", tableName, key));
                     }
                 }
             }

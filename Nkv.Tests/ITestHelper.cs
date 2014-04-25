@@ -8,6 +8,6 @@ namespace Nkv.Tests
     public interface TestHelper
     {
         void AssertTableExists(string tableName);
-        void AssertRowExists(string tableName, string key);
+        void AssertRowExists(string tableName, string key, bool exists = true);
     }
 }
