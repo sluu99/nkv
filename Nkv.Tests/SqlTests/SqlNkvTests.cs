@@ -6,21 +6,21 @@ using Nkv.Attributes;
 namespace Nkv.Tests.SqlTests
 {
     [Table]
-    internal class TypeWithTableAttr { }
+    internal class TypeWithTableAttr : Entity { }
 
     [Table("SomethingElse1")]
-    internal class TypeWithTableAttrAndConstructorName { }
+    internal class TypeWithTableAttrAndConstructorName : Entity { }
 
     [Table(Name = "SomethingElse2")]
-    internal class TypeWithTableAttrAndPropName { }
+    internal class TypeWithTableAttrAndPropName : Entity { }
 
-    internal class TypeWithoutAttribute { }
+    internal class TypeWithoutAttribute : Entity { }
 
     [TestClass]
     public class SqlNkvTests
     {
         [TestMethod]
-        public void CreateTableTests()
+        public void TestCreateTable()
         {
             Nkv nkv = new SqlNkv(TestGlobals.SqlConnectionProvider);
             

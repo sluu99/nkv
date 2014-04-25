@@ -19,7 +19,7 @@ namespace Nkv.Sql
 
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
-                this.Database = conn.Database;
+                Database = conn.Database;
             }
         }
 

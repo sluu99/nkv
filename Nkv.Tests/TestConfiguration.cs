@@ -32,7 +32,13 @@ namespace Nkv.Tests
 
         private static void DropDatabase()
         {
-            string query = string.Format("if exists (select 1 from master.dbo.sysdatabases where name = '{0}') drop database [{0}]", TestGlobals.SqlDatabase);
+            string query = 
+                @"if exists (select 1 from master.dbo.sysdatabases where name = '{0}') 
+                begin
+                    alter database [{0}] set single_user with rollback immediate
+                    drop database [{0}]
+                end";
+            query = string.Format(query, TestGlobals.SqlDatabase);
             ExecuteSqlMasterQuery(query);
         }
 

@@ -12,7 +12,7 @@ namespace Nkv.Attributes
 
         public TableAttribute(string name)
         {
-            this.Name = name;
+            Name = name;
         }
 
         #endregion
