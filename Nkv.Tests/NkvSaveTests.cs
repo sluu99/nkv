@@ -15,9 +15,11 @@ namespace Nkv.Tests
         {
             var nkv = TestConfiguration.CreateNkv(TestContext);
             var helper = TestConfiguration.TestHelpers[TestContext.DataRow["Helper"].ToString()];
-
+            var book = Book.Generate();
             nkv.CreateTable<Book>();
-            nkv.Insert(Book.Generate());
+            nkv.Save(book);
+
+            helper.AssertRowExists("Book", book.Key);
         }
     }
 }

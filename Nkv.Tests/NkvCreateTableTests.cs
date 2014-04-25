@@ -27,7 +27,7 @@ namespace Nkv.Tests
         public void TestCreateTable()
         {
             Nkv nkv;
-            ITestHelper helper;
+            TestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
             
             nkv.CreateTable<TypeWithTableAttr>();
@@ -49,7 +49,7 @@ namespace Nkv.Tests
         public void TestCreateTable_already_exists()
         {
             Nkv nkv;
-            ITestHelper helper;
+            TestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             nkv.CreateTable<Book>();

@@ -36,7 +36,7 @@ namespace Nkv
         public abstract void CreateTable<T>() where T : Entity;
 
 
-        public virtual void Insert<T>(T entity) where T : Entity
+        public virtual void Save<T>(T entity) where T : Entity
         {
             ValidateEntity(entity);
 

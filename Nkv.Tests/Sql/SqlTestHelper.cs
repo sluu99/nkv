@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Nkv.Tests.Sql
 {
-    public class SqlTestHelper : ITestHelper
+    public class SqlTestHelper : TestHelper
     {
         #region Static fields
                 
@@ -58,6 +58,25 @@ namespace Nkv.Tests.Sql
                 }
             }
         }
+
+
+        public void AssertRowExists(string tableName, string key)
+        {
+            using (var conn = new SqlConnection(SqlConnectionString))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = string.Format("select 1 from [{0}] where [key] = @key", tableName);
+                    cmd.Parameters.Add("@key", System.Data.SqlDbType.NVarChar, 128).Value = key;
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        Assert.IsTrue(reader.Read(), string.Format("Cannot find row; table = {0}, key = {1}", tableName, key));
+                    }
+                }
+            }
+        }
+
 
         #endregion
 
