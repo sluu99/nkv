@@ -21,7 +21,10 @@ namespace Nkv.Sql
             string query =
                 @"if not exists (select 1 from sys.tables where name = '{0}')
                 begin
-                    create table [{0}] ([key] nvarchar(128) primary key not null, [value] nvarchar(max), [timestamp] datetime not null)
+                    create table [{0}] (
+                        [key] nvarchar(128) collate SQL_Latin1_General_CP1_CS_AS primary key not null, 
+                        [value] nvarchar(max), 
+                        [timestamp] datetime not null)
                 end";
             query = string.Format(query, tableName);
             ExecuteNonQuery(query);
