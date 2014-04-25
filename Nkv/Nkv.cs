@@ -25,7 +25,7 @@ namespace Nkv
         /// </summary>
         protected abstract string Escape(string x);
 
-        protected abstract string GetInsertQuery(string tableName, out string keyParamName, out string valueParamName);
+        protected abstract string GetSaveQuery(string tableName, out string keyParamName, out string valueParamName);
 
         protected abstract IDbDataParameter CreateParameter(string name, SqlDbType type, object value, int size = 0);
 
@@ -43,7 +43,7 @@ namespace Nkv
             string keyParamName;
             string valueParamName;
             string tableName = TableAttribute.GetTableName(typeof(T));
-            string query = GetInsertQuery(tableName, out keyParamName, out valueParamName);
+            string query = GetSaveQuery(tableName, out keyParamName, out valueParamName);
 
             var json = JsonConvert.SerializeObject(entity);
             var keyParam = CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, size: 128);

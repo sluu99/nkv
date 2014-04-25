@@ -2,49 +2,47 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data.SqlClient;
 using Nkv.Sql;
+using System.Collections.Generic;
+using Nkv.Tests.Sql;
+using Nkv.Interfaces;
 
 namespace Nkv.Tests
 {
     [TestClass]
     public class TestConfiguration
     {
+        public static Dictionary<string, ITestHelper> TestHelpers { get; set; }
+        public static Dictionary<string, IConnectionProvider> ConnectionProviders { get; set; }
+
         [AssemblyInitialize]
         public static void AssemblyInit(TestContext context)
         {
-            DropDatabase();
-            CreateDatabase();
+            var sqlTestHelper = new SqlTestHelper();
+            sqlTestHelper.DropDatabase();
+            sqlTestHelper.CreateDatabase();
 
-            TestGlobals.SqlConnectionProvider = new SqlConnectionProvider(TestGlobals.SqlConnectionString);
+            TestHelpers = new Dictionary<string, ITestHelper>();
+            TestHelpers["Nkv.Tests.Sql.SqlTestHelper"] = sqlTestHelper;
+
+            ConnectionProviders = new Dictionary<string, IConnectionProvider>();
+            ConnectionProviders["Nkv.Sql.SqlConnectionProvider"] = sqlTestHelper.ConnectionProvider;
         }
 
-        private static void ExecuteSqlMasterQuery(string query)
+        public static Nkv CreateNkv(TestContext context)
         {
-            using (SqlConnection conn = new SqlConnection(TestGlobals.SqlMasterConnectionString))
-            {
-                conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
-                {
-                    cmd.CommandText = query;
-                    cmd.ExecuteNonQuery();
-                }
-            }
+            var className = context.DataRow["ClassName"].ToString();
+            var connectionProviderName = context.DataRow["ConnectionProvider"].ToString();
+
+            var nkvType = Type.GetType(className);
+            var connectionProvider = TestConfiguration.ConnectionProviders[connectionProviderName];
+
+            return Activator.CreateInstance(nkvType, connectionProvider) as Nkv;
         }
 
-        private static void DropDatabase()
+        public static void ParseContext(TestContext context, out Nkv nkv, out ITestHelper helper)
         {
-            string query = 
-                @"if exists (select 1 from master.dbo.sysdatabases where name = '{0}') 
-                begin
-                    alter database [{0}] set single_user with rollback immediate
-                    drop database [{0}]
-                end";
-            query = string.Format(query, TestGlobals.SqlDatabase);
-            ExecuteSqlMasterQuery(query);
-        }
-
-        private static void CreateDatabase()
-        {
-            ExecuteSqlMasterQuery(string.Format("create database [{0}]", TestGlobals.SqlDatabase));
+            nkv = CreateNkv(context);
+            helper = TestHelpers[context.DataRow["Helper"].ToString()];
         }
     }
 }

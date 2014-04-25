@@ -48,7 +48,7 @@ namespace Nkv.Sql
             return p;
         }
 
-        protected override string GetInsertQuery(string tableName, out string keyParamName, out string valueParamName)
+        protected override string GetSaveQuery(string tableName, out string keyParamName, out string valueParamName)
         {
             keyParamName = "@key";
             valueParamName = "@value";

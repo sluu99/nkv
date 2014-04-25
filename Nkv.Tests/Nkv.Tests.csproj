@@ -65,12 +65,12 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Fixtures\Book.cs" />
+    <Compile Include="ITestHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SqlTests\SqlNkvTests.cs" />
-    <Compile Include="SqlTests\SqlTestHelper.cs" />
-    <Compile Include="SqlTests\SqlNkvInsertTests.cs" />
+    <Compile Include="NkvCreateTableTests.cs" />
+    <Compile Include="Sql\SqlTestHelper.cs" />
+    <Compile Include="NkvSaveTests.cs" />
     <Compile Include="TestConfiguration.cs" />
-    <Compile Include="TestGlobals.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Nkv\Nkv.csproj">
@@ -80,6 +80,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Implementations.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
