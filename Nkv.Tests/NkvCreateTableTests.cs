@@ -23,7 +23,7 @@ namespace Nkv.Tests
         public TestContext TestContext { get; set; }
 
         [TestMethod]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestCreateTable()
         {
             Nkv nkv;
@@ -45,7 +45,7 @@ namespace Nkv.Tests
         }
 
         [TestMethod]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestCreateTable_already_exists()
         {
             Nkv nkv;

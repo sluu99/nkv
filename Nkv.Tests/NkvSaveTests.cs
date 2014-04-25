@@ -11,7 +11,7 @@ namespace Nkv.Tests
         public TestContext TestContext { get; set; }
 
         [TestMethod]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestInsertion()
         {
             var nkv = TestConfiguration.CreateNkv(TestContext);
@@ -24,7 +24,7 @@ namespace Nkv.Tests
         }
 
         [TestMethod]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestInsertion_single_transaction_committed()
         {
             var nkv = TestConfiguration.CreateNkv(TestContext);
@@ -48,7 +48,7 @@ namespace Nkv.Tests
         }
 
         [TestMethod]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestInsertion_single_transaction_not_committed()
         {
             var nkv = TestConfiguration.CreateNkv(TestContext);
@@ -70,7 +70,7 @@ namespace Nkv.Tests
         }
 
         [TestMethod]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestInsertion_nested_transaction_scope_committed()
         {
             var nkv = TestConfiguration.CreateNkv(TestContext);
