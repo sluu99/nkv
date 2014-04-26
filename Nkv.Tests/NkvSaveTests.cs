@@ -74,33 +74,6 @@ namespace Nkv.Tests
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
-        public void TestInsertion_nested_transaction_scope_committed()
-        {
-            var nkv = TestConfiguration.CreateNkv(TestContext);
-            var helper = TestConfiguration.TestHelpers[TestContext.DataRow["Helper"].ToString()];
-
-            nkv.CreateTable<Book>();
-
-            var outterBook = Book.Generate();
-            var innerBook = Book.Generate();
-
-            using (var outterTx = new TransactionScope())
-            {                
-                nkv.Save(outterBook);
-
-                using (var innerTx = new TransactionScope(TransactionScopeOption.RequiresNew))
-                {
-                    nkv.Save(innerBook);
-                    innerTx.Complete();
-                }
-            }
-
-            helper.AssertRowExists("Book", outterBook.Key, false);
-            helper.AssertRowExists("Book", innerBook.Key, true);
-        }
-
-        [TestMethod]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestInsertion_key_should_be_case_sensitive()
         {
             var nkv = TestConfiguration.CreateNkv(TestContext);
