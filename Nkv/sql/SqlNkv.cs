@@ -73,5 +73,15 @@ namespace Nkv.Sql
 
             return string.Format(query.Trim(), tableName);
         }
+
+        protected override string GetSelectQuery(string tableName, out string keyParamName)
+        {
+            keyParamName = "@key";
+
+            string query = "select [value], [timestamp] from [{0}] where [key] = @key";
+            query = string.Format(query, tableName);
+
+            return query;
+        }
     }
 }

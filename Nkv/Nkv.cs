@@ -20,6 +20,8 @@ namespace Nkv
             _connectionProvider = connectionProvider;
         }
 
+        #region Abstract method signatures
+
         /// <summary>
         /// Escape an object name
         /// </summary>
@@ -27,13 +29,18 @@ namespace Nkv
 
         protected abstract string GetSaveQuery(string tableName, out string keyParamName, out string valueParamName, out string timestampParamName);
 
-        protected abstract IDbDataParameter CreateParameter(string name, SqlDbType type, object value, int size = 0);
+        protected abstract string GetSelectQuery(string tableName, out string keyParamName);
 
+        protected abstract IDbDataParameter CreateParameter(string name, SqlDbType type, object value, int size = 0);
+                
         /// <summary>
         /// Create table for a data type
         /// </summary>
         /// <typeparam name="T"></typeparam>
         public abstract void CreateTable<T>() where T : Entity;
+
+        #endregion
+
 
 
         public virtual void Save<T>(T entity) where T : Entity
@@ -72,6 +79,38 @@ namespace Nkv
             ExecuteReader(query, readerCallback, keyParam, valueParam, timestampParam);
         }
 
+        public virtual T Select<T>(string key) where T : Entity
+        {
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                throw new ArgumentException("Key cannot be null or white space");
+            }
+
+            string keyParamName;
+            string query = GetSelectQuery(TableAttribute.GetTableName(typeof(T)), out keyParamName);
+            var keyParam = CreateParameter(keyParamName, SqlDbType.NVarChar, key, 128);
+
+            T entity = null;
+
+            Action<IDataReader> readerCallback = (reader) =>
+            {
+                if (reader.Read())
+                {
+                    int i = 0;
+                    var json = reader.GetString(i++);
+                    var timestamp = reader.GetDateTime(i++);
+                    
+                    entity = JsonConvert.DeserializeObject<T>(json);
+                    entity.Key = key;
+                    entity.Timestamp = timestamp;
+                }
+            };
+
+            ExecuteReader(query, readerCallback, keyParam);
+            return entity;
+        }
+
+        #region Helper methods
 
         protected virtual int ExecuteNonQuery(string query, params IDbDataParameter[] parameters)
         {
@@ -137,5 +176,7 @@ namespace Nkv
                 throw new ArgumentException("Key cannot be null or white space");
             }
         }
+
+        #endregion
     }
 }
