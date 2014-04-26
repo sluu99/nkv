@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nkv.Sql;
 using Nkv.Tests.Fixtures;
+using System;
 using System.Transactions;
 
 namespace Nkv.Tests
@@ -113,6 +114,28 @@ namespace Nkv.Tests
 
             helper.AssertRowExists("Book", book.Key);
             helper.AssertRowExists("Book", book.Key.ToUpper(), false);
+        }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestInsertion_same_key_different_tables()
+        {
+            var nkv = TestConfiguration.CreateNkv(TestContext);
+            var helper = TestConfiguration.TestHelpers[TestContext.DataRow["Helper"].ToString()];
+            nkv.CreateTable<Book>();
+            nkv.CreateTable<BlogEntry>();
+
+            string key = Guid.NewGuid().ToString();
+            var book = Book.Generate();
+            book.Key = key;
+            var blogEntry = BlogEntry.Generate();
+            blogEntry.Key = key;
+
+            nkv.Save(book);
+            nkv.Save(blogEntry);
+
+            helper.AssertRowExists("Book", key);
+            helper.AssertRowExists("BlogPosts", key);
         }
         
         #endregion
