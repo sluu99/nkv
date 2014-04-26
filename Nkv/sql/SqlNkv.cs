@@ -51,17 +51,27 @@ namespace Nkv.Sql
             return p;
         }
 
-        protected override string GetSaveQuery(string tableName, out string keyParamName, out string valueParamName)
+        protected override string GetSaveQuery(string tableName, out string keyParamName, out string valueParamName, out string timestampParamName)
         {
             keyParamName = "@key";
             valueParamName = "@value";
+            timestampParamName = "@oldTimestamp";
 
             string query = @"
-                declare @timestamp datetime = sysutcdatetime()
-                insert into [{0}]([key], [value], [timestamp]) values({1}, {2}, @timestamp)
-                select @@rowcount [RowCount], @timestamp [Timestamp]";
+                declare @newTimestamp datetime = sysutcdatetime();
 
-            return string.Format(query.Trim(), tableName, keyParamName, valueParamName);
+                merge into [{0}] as [Target]
+                using (select @key, @oldTimestamp) as [Source] ([key], [timestamp])
+                on ([Target].[key] = [Source].[key] and [Target].[timestamp] = [Source].[timestamp])
+                when matched then
+	                update set [value] = @value, [timestamp] = sysutcdatetime()	
+                when not matched by target then
+	                insert([key], [value], [timestamp])
+	                values(@key, @value, @newTimestamp);
+
+                select @@rowcount [RowCount], @newTimestamp [Timestamp]";
+
+            return string.Format(query.Trim(), tableName);
         }
     }
 }

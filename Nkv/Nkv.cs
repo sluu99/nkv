@@ -25,7 +25,7 @@ namespace Nkv
         /// </summary>
         protected abstract string Escape(string x);
 
-        protected abstract string GetSaveQuery(string tableName, out string keyParamName, out string valueParamName);
+        protected abstract string GetSaveQuery(string tableName, out string keyParamName, out string valueParamName, out string timestampParamName);
 
         protected abstract IDbDataParameter CreateParameter(string name, SqlDbType type, object value, int size = 0);
 
@@ -42,12 +42,14 @@ namespace Nkv
 
             string keyParamName;
             string valueParamName;
+            string timestampParamName;
             string tableName = TableAttribute.GetTableName(typeof(T));
-            string query = GetSaveQuery(tableName, out keyParamName, out valueParamName);
+            string query = GetSaveQuery(tableName, out keyParamName, out valueParamName, out timestampParamName);
 
             var json = JsonConvert.SerializeObject(entity);
             var keyParam = CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, size: 128);
             var valueParam = CreateParameter(valueParamName, SqlDbType.NVarChar, json);
+            var timestampParam = CreateParameter(timestampParamName, SqlDbType.DateTime, entity.Timestamp);
 
             Action<IDataReader> readerCallback = (reader) =>
             {
@@ -67,7 +69,7 @@ namespace Nkv
                 entity.Timestamp = reader.GetDateTime(i++);
             };
 
-            ExecuteReader(query, readerCallback, keyParam, valueParam);
+            ExecuteReader(query, readerCallback, keyParam, valueParam, timestampParam);
         }
 
 

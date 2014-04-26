@@ -10,6 +10,8 @@ namespace Nkv.Tests
     {
         public TestContext TestContext { get; set; }
 
+        #region Insertion
+
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestInsertion()
@@ -95,5 +97,42 @@ namespace Nkv.Tests
             helper.AssertRowExists("Book", outterBook.Key, false);
             helper.AssertRowExists("Book", innerBook.Key, true);
         }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestInsertion_key_should_be_case_sensitive()
+        {
+            var nkv = TestConfiguration.CreateNkv(TestContext);
+            var helper = TestConfiguration.TestHelpers[TestContext.DataRow["Helper"].ToString()];
+            var book = Book.Generate();
+
+            nkv.CreateTable<Book>();            
+            
+            book.Key = book.Key.ToLower();
+            nkv.Save(book);
+
+            helper.AssertRowExists("Book", book.Key);
+            helper.AssertRowExists("Book", book.Key.ToUpper(), false);
+        }
+        
+        #endregion
+
+        #region Update
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestUpdate()
+        {
+            var nkv = TestConfiguration.CreateNkv(TestContext);
+            var helper = TestConfiguration.TestHelpers[TestContext.DataRow["Helper"].ToString()];
+
+            nkv.CreateTable<Book>();
+
+            var book = Book.Generate();
+            nkv.Save(book);
+            nkv.Save(book);
+        }
+
+        #endregion
     }
 }

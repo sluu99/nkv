@@ -8,6 +8,13 @@ namespace Nkv
 {
     public abstract class Entity
     {
+        private static readonly DateTime DefaultTimestamp = DateTime.Parse("1990-09-01");
+
+        public Entity()
+        {
+            Timestamp = DefaultTimestamp;
+        }
+
         [JsonIgnore]
         public string Key { get; set; }
 
