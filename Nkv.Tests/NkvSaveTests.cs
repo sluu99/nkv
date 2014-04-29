@@ -69,15 +69,17 @@ namespace Nkv.Tests
             var book1 = Book.Generate();
             var book2 = Book.Generate();
 
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+            }
+
             using (var tx = new TransactionScope())
             {
                 using (var session = nkv.BeginSession())
                 {
-                    session.CreateTable<Book>();
-
                     session.Save(book1);
                     session.Save(book2);
-
                 }
             }
 
