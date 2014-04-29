@@ -53,6 +53,8 @@ namespace Nkv.Sql
 
             string query = @"
                 declare @newTimestamp datetime = sysutcdatetime();
+                declare @rowCount int;
+                declare @ackCode varchar(32) = 'SUCCESS'
 
                 merge into [{0}] as [Target]
                 using (select @key, @oldTimestamp) as [Source] ([key], [timestamp])
@@ -63,7 +65,23 @@ namespace Nkv.Sql
 	                insert([key], [value], [timestamp])
 	                values(@key, @value, @newTimestamp);
 
-                select @@rowcount [RowCount], @newTimestamp [Timestamp]";
+                set @rowCount = @@rowcount;
+                if @rowCount <> 1
+                begin
+                    set @newTimestamp = null;
+                    select @newTimestamp = [timestamp] from [{0}] where [key] = @key;
+
+                    if @newTimestamp is not null and @newTimestamp <> @oldTimestamp
+                    begin
+                        set @ackCode = 'TIMESTAMP_MISMATCH';
+                    end
+                    else
+                    begin
+                        set @ackCode = 'UNKNOWN';
+                    end
+                end
+
+                select @rowCount [RowCount], @newTimestamp [Timestamp], @ackCode [AckCode]";
 
             return string.Format(query.Trim(), tableName);
         }
@@ -89,7 +107,46 @@ namespace Nkv.Sql
                         [value] nvarchar(max), 
                         [timestamp] datetime not null)
                 end";
-            return string.Format(query, tableName);
+            return string.Format(query.Trim(), tableName);
+        }
+
+
+        public string GetDeleteQuery(string tableName, out string keyParamName, out string timestampParamName)
+        {
+            keyParamName = "@key";
+            timestampParamName = "@timestamp";
+
+            string query = @"
+                declare @rowTimestamp datetime;
+                declare @rowCount int;
+                declare @ackCode varchar(32) = 'SUCCESS'
+
+                delete from [{0}] where [key] = @key and [timestamp] = @timestamp;
+                
+                set @rowCount = @@rowcount;
+                if @rowCount <> 1
+                begin
+                    select @rowTimestamp = [timestamp] from [{0}] where [key] = @key;
+                    if @rowTimestamp is null
+                    begin
+                        set @ackCode = 'NOT_EXISTS';
+                    end
+                    else
+                    begin
+                        if @rowTimestamp <> @timestamp
+                        begin
+                            set @ackCode = 'TIMESTAMP_MISMATCH';            
+                        end
+                        else
+                        begin
+                            set @ackCode = 'UNKNOWN';
+                        end
+                    end
+                end
+
+                select @rowCount [RowCount], @rowTimestamp [Timestamp], @ackCode [AckCode]";
+
+            return string.Format(query.Trim(), tableName);
         }
     }
 }

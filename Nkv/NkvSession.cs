@@ -61,7 +61,7 @@ namespace Nkv
 
                 if (rowCount != 1)
                 {
-                    throw new Exception("Insertion validation failed. Row count = " + rowCount.ToString());
+                    throw new Exception("Save validation failed. Row count = " + rowCount.ToString());
                 }
 
                 entity.Timestamp = reader.GetDateTime(i++);
@@ -99,6 +99,24 @@ namespace Nkv
 
             ExecuteReader(query, readerCallback, keyParam);
             return entity;
+        }
+
+        public void Delete<T>(T entity) where T : Entity
+        {
+            ValidateEntity(entity);
+
+            string keyParamName;
+            string timestampParamName;
+            string query = Provider.GetDeleteQuery(TableAttribute.GetTableName(typeof(T)), out keyParamName, out timestampParamName);
+            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, 128);
+            var timestampParam = Provider.CreateParameter(timestampParamName, SqlDbType.DateTime, entity.Timestamp);
+
+            int rowCount = ExecuteNonQuery(query, keyParam, timestampParam);
+
+            if (rowCount != 1)
+            {
+                throw new Exception("Delete validation failed");
+            }
         }
 
         #region Helper methods

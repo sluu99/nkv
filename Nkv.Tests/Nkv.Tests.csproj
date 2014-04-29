@@ -74,6 +74,7 @@
     <Compile Include="NkvSaveTests.cs" />
     <Compile Include="TestConfiguration.cs" />
     <Compile Include="NkvSelectTests.cs" />
+    <Compile Include="NkvDeleteTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Nkv\Nkv.csproj">

@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Nkv.Sql;
 using Nkv.Tests.Fixtures;
 using System;
 using System.Transactions;

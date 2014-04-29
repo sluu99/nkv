@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Nkv.Sql;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nkv.Attributes;
 using Nkv.Tests.Fixtures;
 
