@@ -20,10 +20,14 @@ namespace Nkv.Tests
             var nkv = TestConfiguration.CreateNkv(TestContext);
             var helper = TestConfiguration.TestHelpers[TestContext.DataRow["Helper"].ToString()];
             var book = Book.Generate();
-            nkv.CreateTable<Book>();
-            nkv.Save(book);
 
-            helper.AssertRowExists("Book", book.Key);
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+                session.Save(book);
+
+                helper.AssertRowExists("Book", book.Key);
+            }
         }
 
         [TestMethod]
@@ -33,17 +37,22 @@ namespace Nkv.Tests
             var nkv = TestConfiguration.CreateNkv(TestContext);
             var helper = TestConfiguration.TestHelpers[TestContext.DataRow["Helper"].ToString()];
 
-            nkv.CreateTable<Book>();
-
             var book1 = Book.Generate();
             var book2 = Book.Generate();
 
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+            }
+
             using (var tx = new TransactionScope())
             {
-                nkv.Save(book1);
-                nkv.Save(book2);
-                tx.Complete();
-
+                using (var session = nkv.BeginSession())
+                {                    
+                    session.Save(book1);
+                    session.Save(book2);
+                    tx.Complete();
+                }
             }
 
             helper.AssertRowExists("Book", book1.Key);
@@ -57,15 +66,19 @@ namespace Nkv.Tests
             var nkv = TestConfiguration.CreateNkv(TestContext);
             var helper = TestConfiguration.TestHelpers[TestContext.DataRow["Helper"].ToString()];
 
-            nkv.CreateTable<Book>();
-
             var book1 = Book.Generate();
             var book2 = Book.Generate();
 
             using (var tx = new TransactionScope())
             {
-                nkv.Save(book1);
-                nkv.Save(book2);                
+                using (var session = nkv.BeginSession())
+                {
+                    session.CreateTable<Book>();
+
+                    session.Save(book1);
+                    session.Save(book2);
+
+                }
             }
 
             helper.AssertRowExists("Book", book1.Key, false);
@@ -79,21 +92,30 @@ namespace Nkv.Tests
             var nkv = TestConfiguration.CreateNkv(TestContext);
             var helper = TestConfiguration.TestHelpers[TestContext.DataRow["Helper"].ToString()];
 
-            nkv.CreateTable<Book>();
-
             var outterBook = Book.Generate();
             var innerBook = Book.Generate();
 
-                using (var outterTx = new TransactionScope())
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+            }
+
+            using (var outterTx = new TransactionScope())
+            {
+                using (var session = nkv.BeginSession())
                 {
                     using (var innerTx = new TransactionScope(TransactionScopeOption.RequiresNew))
                     {
-                        nkv.Save(innerBook);
-                        innerTx.Complete();
+                        using (var innerSession = nkv.BeginSession())
+                        {
+                            innerSession.Save(innerBook);
+                            innerTx.Complete();
+                        }
                     }
 
-                    nkv.Save(outterBook);
+                    session.Save(outterBook);
                 }
+            }
 
             helper.AssertRowExists("Book", outterBook.Key, false);
             helper.AssertRowExists("Book", innerBook.Key, true);
@@ -107,13 +129,16 @@ namespace Nkv.Tests
             var helper = TestConfiguration.TestHelpers[TestContext.DataRow["Helper"].ToString()];
             var book = Book.Generate();
 
-            nkv.CreateTable<Book>();            
-            
-            book.Key = book.Key.ToLower();
-            nkv.Save(book);
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
 
-            helper.AssertRowExists("Book", book.Key);
-            helper.AssertRowExists("Book", book.Key.ToUpper(), false);
+                book.Key = book.Key.ToLower();
+                session.Save(book);
+
+                helper.AssertRowExists("Book", book.Key);
+                helper.AssertRowExists("Book", book.Key.ToUpper(), false);
+            }
         }
 
         [TestMethod]
@@ -122,22 +147,26 @@ namespace Nkv.Tests
         {
             var nkv = TestConfiguration.CreateNkv(TestContext);
             var helper = TestConfiguration.TestHelpers[TestContext.DataRow["Helper"].ToString()];
-            nkv.CreateTable<Book>();
-            nkv.CreateTable<BlogEntry>();
 
-            string key = Guid.NewGuid().ToString();
-            var book = Book.Generate();
-            book.Key = key;
-            var blogEntry = BlogEntry.Generate();
-            blogEntry.Key = key;
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+                session.CreateTable<BlogEntry>();
 
-            nkv.Save(book);
-            nkv.Save(blogEntry);
+                string key = Guid.NewGuid().ToString();
+                var book = Book.Generate();
+                book.Key = key;
+                var blogEntry = BlogEntry.Generate();
+                blogEntry.Key = key;
 
-            helper.AssertRowExists("Book", key);
-            helper.AssertRowExists("BlogPosts", key);
+                session.Save(book);
+                session.Save(blogEntry);
+
+                helper.AssertRowExists("Book", key);
+                helper.AssertRowExists("BlogPosts", key);
+            }
         }
-        
+
         #endregion
 
         #region Update
@@ -149,11 +178,14 @@ namespace Nkv.Tests
             var nkv = TestConfiguration.CreateNkv(TestContext);
             var helper = TestConfiguration.TestHelpers[TestContext.DataRow["Helper"].ToString()];
 
-            nkv.CreateTable<Book>();
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
 
-            var book = Book.Generate();
-            nkv.Save(book);
-            nkv.Save(book);
+                var book = Book.Generate();
+                session.Save(book);
+                session.Save(book);
+            }
         }
 
         #endregion

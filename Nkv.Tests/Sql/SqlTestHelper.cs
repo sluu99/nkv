@@ -17,10 +17,10 @@ namespace Nkv.Tests.Sql
 
         private const string SqlMasterConnectionString = "server=localhost;database=master;trusted_connection=true";
 
-        private SqlConnectionProvider _connectionProviderField;
+        private SqlProvider _connectionProviderField;
         private object _padLock = new object();
 
-        public SqlConnectionProvider ConnectionProvider
+        public SqlProvider ConnectionProvider
         {
             get
             {
@@ -30,7 +30,7 @@ namespace Nkv.Tests.Sql
                     {
                         if (_connectionProviderField == null)
                         {
-                            _connectionProviderField = new SqlConnectionProvider(SqlConnectionString);
+                            _connectionProviderField = new SqlProvider(SqlConnectionString);
                         }
                     }
                 }

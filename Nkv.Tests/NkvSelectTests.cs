@@ -17,20 +17,24 @@ namespace Nkv.Tests
             Nkv nkv;
             TestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
-            nkv.CreateTable<Book>();
 
-            var book = Book.Generate();
-            nkv.Save(book);
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
 
-            var book2 = nkv.Select<Book>(book.Key);
+                var book = Book.Generate();
+                session.Save(book);
 
-            Assert.AreEqual(book.Key, book2.Key);
-            Assert.AreEqual(book.Category, book2.Category);
-            Assert.AreEqual(book.Title, book2.Title);
-            Assert.AreEqual(book.Timestamp, book2.Timestamp);
-            Assert.AreEqual(book.Pages, book2.Pages);
-            Assert.AreEqual(book.ReleaseDate, book2.ReleaseDate);
-            Assert.AreEqual(book.Abstract, book2.Abstract);
+                var book2 = session.Select<Book>(book.Key);
+
+                Assert.AreEqual(book.Key, book2.Key);
+                Assert.AreEqual(book.Category, book2.Category);
+                Assert.AreEqual(book.Title, book2.Title);
+                Assert.AreEqual(book.Timestamp, book2.Timestamp);
+                Assert.AreEqual(book.Pages, book2.Pages);
+                Assert.AreEqual(book.ReleaseDate, book2.ReleaseDate);
+                Assert.AreEqual(book.Abstract, book2.Abstract);
+            }
         }
 
         [TestMethod]
@@ -40,15 +44,19 @@ namespace Nkv.Tests
             Nkv nkv;
             TestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
-            nkv.CreateTable<Book>();
 
-            // make sure there's something in the database
-            for (int i = 0; i < 10; i++)
+            using (var session = nkv.BeginSession())
             {
-                nkv.Save(Book.Generate()); 
-            }
+                session.CreateTable<Book>();
 
-            Assert.IsNull(nkv.Select<Book>(Guid.NewGuid().ToString()));
+                // make sure there's something in the database
+                for (int i = 0; i < 10; i++)
+                {
+                    session.Save(Book.Generate());
+                }
+
+                Assert.IsNull(session.Select<Book>(Guid.NewGuid().ToString()));
+            }
         }
 
         [TestMethod]
@@ -58,24 +66,27 @@ namespace Nkv.Tests
             Nkv nkv;
             TestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
-            nkv.CreateTable<Book>();
-            nkv.CreateTable<BlogEntry>();
-
-            var book = Book.Generate();
-            var blogEntry = BlogEntry.Generate();
-
-            using (var tx = new TransactionScope())
+            using (var session = nkv.BeginSession())
             {
-                nkv.Save(book);
-                nkv.Save(blogEntry);
+                session.CreateTable<Book>();
+                session.CreateTable<BlogEntry>();
 
-                tx.Complete();
+                var book = Book.Generate();
+                var blogEntry = BlogEntry.Generate();
+
+                using (var tx = new TransactionScope())
+                {
+                    session.Save(book);
+                    session.Save(blogEntry);
+
+                    tx.Complete();
+                }
+
+                helper.AssertRowExists("Book", book.Key);
+                helper.AssertRowExists("BlogPosts", blogEntry.Key);
+                helper.AssertRowExists("Book", blogEntry.Key, false);
+                helper.AssertRowExists("BlogPosts", book.Key, false);
             }
-
-            helper.AssertRowExists("Book", book.Key);
-            helper.AssertRowExists("BlogPosts", blogEntry.Key);
-            helper.AssertRowExists("Book", blogEntry.Key, false);
-            helper.AssertRowExists("BlogPosts", book.Key, false);
         }
     }
 }

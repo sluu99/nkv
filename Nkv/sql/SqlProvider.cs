@@ -1,41 +1,35 @@
-﻿using Nkv.Attributes;
+﻿using Nkv.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
 
 namespace Nkv.Sql
 {
-    public class SqlNkv : Nkv
+    public class SqlProvider : IProvider
     {
-        public SqlNkv(SqlConnectionProvider connectionProvider)
-            : base(connectionProvider)
+        private string _connectionString;
+
+        public SqlProvider(string connectionString)
         {
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                throw new ArgumentException("SQL Server connection string is required");
+            }
+
+            _connectionString = connectionString;
         }
 
-        public override void CreateTable<T>()
+        public System.Data.IDbConnection GetConnection()
         {
-            string tableName = TableAttribute.GetTableName(typeof(T));
-            string query =
-                @"if not exists (select 1 from sys.tables where name = '{0}')
-                begin
-                    create table [{0}] (
-                        [key] nvarchar(128) collate SQL_Latin1_General_CP1_CS_AS primary key not null, 
-                        [value] nvarchar(max), 
-                        [timestamp] datetime not null)
-                end";
-            query = string.Format(query, tableName);
-            ExecuteNonQuery(query);
+            return new SqlConnection(_connectionString);
         }
 
-        protected override string Escape(string x)
+        public string Escape(string x)
         {
             return string.Format("[{0}]", x);
         }
 
-        protected override IDbDataParameter CreateParameter(string name, SqlDbType type, object value, int size = 0)
+        public IDbDataParameter CreateParameter(string name, SqlDbType type, object value, int size = 0)
         {
             SqlParameter p;
             if (size != 0)
@@ -51,7 +45,7 @@ namespace Nkv.Sql
             return p;
         }
 
-        protected override string GetSaveQuery(string tableName, out string keyParamName, out string valueParamName, out string timestampParamName)
+        public string GetSaveQuery(string tableName, out string keyParamName, out string valueParamName, out string timestampParamName)
         {
             keyParamName = "@key";
             valueParamName = "@value";
@@ -74,7 +68,7 @@ namespace Nkv.Sql
             return string.Format(query.Trim(), tableName);
         }
 
-        protected override string GetSelectQuery(string tableName, out string keyParamName)
+        public string GetSelectQuery(string tableName, out string keyParamName)
         {
             keyParamName = "@key";
 
@@ -82,6 +76,20 @@ namespace Nkv.Sql
             query = string.Format(query, tableName);
 
             return query;
+        }
+
+
+        public string GetCreateTableQuery(string tableName)
+        {
+            string query =
+                @"if not exists (select 1 from sys.tables where name = '{0}')
+                begin
+                    create table [{0}] (
+                        [key] nvarchar(128) collate SQL_Latin1_General_CP1_CS_AS primary key not null, 
+                        [value] nvarchar(max), 
+                        [timestamp] datetime not null)
+                end";
+            return string.Format(query, tableName);
         }
     }
 }

@@ -29,18 +29,21 @@ namespace Nkv.Tests
             Nkv nkv;
             TestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
-            
-            nkv.CreateTable<TypeWithTableAttr>();
-            helper.AssertTableExists("TypeWithTableAttr");
 
-            nkv.CreateTable<TypeWithTableAttrAndConstructorName>();
-            helper.AssertTableExists("SomethingElse1");
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<TypeWithTableAttr>();
+                helper.AssertTableExists("TypeWithTableAttr");
 
-            nkv.CreateTable<TypeWithTableAttrAndPropName>();
-            helper.AssertTableExists("SomethingElse2");
+                session.CreateTable<TypeWithTableAttrAndConstructorName>();
+                helper.AssertTableExists("SomethingElse1");
 
-            nkv.CreateTable<TypeWithoutAttribute>();
-            helper.AssertTableExists("TypeWithoutAttribute");
+                session.CreateTable<TypeWithTableAttrAndPropName>();
+                helper.AssertTableExists("SomethingElse2");
+
+                session.CreateTable<TypeWithoutAttribute>();
+                helper.AssertTableExists("TypeWithoutAttribute");
+            }
 
         }
 
@@ -52,11 +55,14 @@ namespace Nkv.Tests
             TestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
-            nkv.CreateTable<Book>();
-            helper.AssertTableExists("Book");
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+                helper.AssertTableExists("Book");
 
-            nkv.CreateTable<Book>();
-            helper.AssertTableExists("Book");
+                session.CreateTable<Book>();
+                helper.AssertTableExists("Book");
+            }
         }
     }
 }

@@ -1,9 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Implementations>
   <Implementation>
-    <Name>SqlNkv</Name>
-    <ClassName>Nkv.Sql.SqlNkv,Nkv</ClassName>
-    <ConnectionProvider>Nkv.Sql.SqlConnectionProvider</ConnectionProvider>      
+    <Name>SqlNkv</Name>    
+    <Provider>Nkv.Sql.SqlProvider</Provider>      
     <Helper>Nkv.Tests.Sql.SqlTestHelper</Helper>
   </Implementation>
 </Implementations>
