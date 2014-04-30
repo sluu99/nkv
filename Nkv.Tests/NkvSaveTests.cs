@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nkv.Tests.Fixtures;
 using System;
+using System.Threading;
 using System.Transactions;
 
 namespace Nkv.Tests
@@ -187,6 +188,42 @@ namespace Nkv.Tests
                 session.Save(book);
                 session.Save(book);
             }
+        }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestUpdate_entity_modified()
+        {
+            Nkv nkv;
+            ITestHelper helper;
+            TestConfiguration.ParseContext(TestContext, out nkv, out helper);
+
+            var book = Book.Generate();
+
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+
+                session.Save(book); // insert
+                helper.AssertRowExists("Book", book.Key);
+
+                var bookInstance2 = session.Select<Book>(book.Key);
+
+                Thread.Sleep(1000); // make sure the time changes                
+                session.Save(bookInstance2);
+                Assert.AreNotEqual(book.Timestamp, bookInstance2.Timestamp);
+
+                try
+                {
+                    session.Save(book);
+                    Assert.Fail("Expecting an instance of NkvException thrown with AckCode=TIMESTAMP_MISMATCH");
+                }
+                catch (NkvException ex)
+                {
+                    Assert.AreEqual("TIMESTAMP_MISMATCH", ex.AckCode, ignoreCase: true);
+                }
+            }
+            
         }
 
         #endregion

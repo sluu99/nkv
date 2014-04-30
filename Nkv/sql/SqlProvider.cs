@@ -55,33 +55,46 @@ namespace Nkv.Sql
                 declare @newTimestamp datetime = sysutcdatetime();
                 declare @rowCount int;
                 declare @ackCode varchar(32) = 'SUCCESS'
+                declare @recordTimestamp datetime
+                declare @returnTimestamp datetime
 
-                merge into [{0}] as [Target]
-                using (select @key, @oldTimestamp) as [Source] ([key], [timestamp])
-                on ([Target].[key] = [Source].[key] and [Target].[timestamp] = [Source].[timestamp])
-                when matched then
-	                update set [value] = @value, [timestamp] = sysutcdatetime()	
-                when not matched by target then
-	                insert([key], [value], [timestamp])
-	                values(@key, @value, @newTimestamp);
+                set @returnTimestamp = @newTimestamp;
+
+                update [{0}] set [value] = @value, [timestamp] = @newTimestamp
+                where [key] = @key and [timestamp] = @oldTimestamp;
 
                 set @rowCount = @@rowcount;
+
                 if @rowCount <> 1
                 begin
-                    set @newTimestamp = null;
-                    select @newTimestamp = [timestamp] from [{0}] where [key] = @key;
+	                set @recordTimestamp = null;
+	                select @recordTimestamp = [timestamp] from [{0}] where [key] = @key;
 
-                    if @newTimestamp is not null and @newTimestamp <> @oldTimestamp
-                    begin
-                        set @ackCode = 'TIMESTAMP_MISMATCH';
-                    end
-                    else
-                    begin
-                        set @ackCode = 'UNKNOWN';
-                    end
+	                if @recordTimestamp is not null -- record found
+	                begin
+		                if @recordTimestamp <> @oldTimestamp
+		                begin
+			                set @ackCode = 'TIMESTAMP_MISMATCH';
+                            set @returnTimestamp = @recordTimestamp;
+		                end
+		                else
+		                begin
+			                set @ackCode = 'UNKNOWN';
+		                end
+	                end
+	                else
+	                begin
+		                insert into [{0}]([key], [value], [timestamp]) values(@key, @value, @newTimestamp);
+		
+		                set @rowCount = @@rowCount;
+		                if @rowCount <> 1
+		                begin
+			                set @ackCode = 'UNKNOWN';
+		                end
+	                end
                 end
 
-                select @rowCount [RowCount], @newTimestamp [Timestamp], @ackCode [AckCode]";
+                select @rowCount [RowCount], @returnTimestamp [Timestamp], @ackCode [AckCode]";
 
             return string.Format(query.Trim(), tableName);
         }

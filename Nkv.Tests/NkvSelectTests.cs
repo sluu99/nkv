@@ -15,7 +15,7 @@ namespace Nkv.Tests
         public void TestSelect()
         {
             Nkv nkv;
-            TestHelper helper;
+            ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             using (var session = nkv.BeginSession())
@@ -42,7 +42,7 @@ namespace Nkv.Tests
         public void TestSelect_not_exists()
         {
             Nkv nkv;
-            TestHelper helper;
+            ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             using (var session = nkv.BeginSession())
@@ -64,7 +64,7 @@ namespace Nkv.Tests
         public void TestSelect_same_key_different_tables()
         {
             Nkv nkv;
-            TestHelper helper;
+            ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
             using (var session = nkv.BeginSession())
             {

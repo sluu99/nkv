@@ -25,7 +25,7 @@ namespace Nkv.Tests
         public void TestCreateTable()
         {
             Nkv nkv;
-            TestHelper helper;
+            ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             using (var session = nkv.BeginSession())
@@ -50,7 +50,7 @@ namespace Nkv.Tests
         public void TestCreateTable_already_exists()
         {
             Nkv nkv;
-            TestHelper helper;
+            ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             using (var session = nkv.BeginSession())

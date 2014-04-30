@@ -9,6 +9,9 @@ namespace Nkv
     public abstract class Entity
     {
         private static readonly DateTime DefaultTimestamp = DateTime.Parse("1990-09-01");
+        private const int MaxKeySize = 128;
+
+        private string _key;
 
         public Entity()
         {
@@ -16,7 +19,19 @@ namespace Nkv
         }
 
         [JsonIgnore]
-        public string Key { get; set; }
+        public string Key
+        {
+            get { return _key; }
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value) || value.Length > MaxKeySize)
+                {
+                    throw new ArgumentException("Key must not be null or whitespace and max size = " + MaxKeySize);
+                }
+
+                _key = value;
+            }
+        }
 
         [JsonIgnore]
         public DateTime Timestamp { get; internal set; }

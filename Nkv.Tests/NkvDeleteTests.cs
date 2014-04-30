@@ -14,7 +14,7 @@ namespace Nkv.Tests
         public void TestDelete()
         {
             Nkv nkv;
-            TestHelper helper;
+            ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             var book = Book.Generate();

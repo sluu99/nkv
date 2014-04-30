@@ -21,7 +21,7 @@ namespace Nkv
             if (this.Connection.State != ConnectionState.Open)
             {
                 Connection.Open();
-            }            
+            }
         }
 
         private IDbConnection Connection { get; set; }
@@ -58,13 +58,20 @@ namespace Nkv
 
                 int i = 0;
                 int rowCount = reader.GetInt32(i++);
+                var timestamp = reader.GetDateTime(i++);
+                var ackCode = reader.GetString(i++);
 
-                if (rowCount != 1)
+                if (rowCount != 1 || !string.Equals(ackCode, "SUCCESS", StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new Exception("Save validation failed. Row count = " + rowCount.ToString());
+                    throw new NkvException(string.Format("Error saving the entity key={0}", entity.Key))
+                    {
+                        RowCount = rowCount,
+                        AckCode = ackCode,
+                        Timestamp = timestamp
+                    };
                 }
 
-                entity.Timestamp = reader.GetDateTime(i++);
+                entity.Timestamp = timestamp;
             };
 
             ExecuteReader(query, readerCallback, keyParam, valueParam, timestampParam);
