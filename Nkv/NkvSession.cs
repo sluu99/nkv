@@ -132,6 +132,32 @@ namespace Nkv
 
         }
 
+        public void Update<T>(T entity) where T : Entity
+        {
+            ValidateEntity(entity);
+
+            string keyParamName;
+            string valueParamName;
+            string timestampParamName;
+            string tableName = TableAttribute.GetTableName(typeof(T));
+            string query = Provider.GetUpdateQuery(tableName, out keyParamName, out valueParamName, out timestampParamName);
+
+            var json = JsonConvert.SerializeObject(entity);
+            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, size: Entity.MaxKeySize);
+            var valueParam = Provider.CreateParameter(valueParamName, SqlDbType.NVarChar, json);
+            var timestampParam = Provider.CreateParameter(timestampParamName, SqlDbType.DateTime, entity.Timestamp);
+
+            Action<IDataReader> readerCallback = (reader) =>
+            {
+                DateTime timestamp;
+                ValidateReaderResult(reader, 1, string.Format("Error updating {0} entity with key={1}", tableName, entity.Key), out timestamp);
+
+                entity.Timestamp = timestamp;
+            };
+
+            ExecuteReader(query, readerCallback, keyParam, valueParam, timestampParam);
+        }
+
         public void Delete<T>(T entity) where T : Entity
         {
             ValidateEntity(entity);

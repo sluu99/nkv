@@ -204,5 +204,52 @@ namespace Nkv.Sql
 
             return string.Format(query.Trim(), tableName);
         }
+
+
+        public string GetUpdateQuery(string tableName, out string keyParamName, out string valueParamName, out string timestampParamName)
+        {
+            keyParamName = "@key";
+            valueParamName = "@value";
+            timestampParamName = "@oldTimestamp";
+
+            string query = @"
+                declare @rowTimestamp datetime = sysutcdatetime();
+                declare @rowCount int = 0;
+                declare @ackCode varchar(32);
+
+                update [{0}] set
+	                [value] = @value,
+	                [timestamp] = @rowTimestamp
+                where [key] = @key and [timestamp] = @oldTimestamp;
+
+                set @rowCount = @@ROWCOUNT;
+                set @ackCode = 'SUCCESS';
+
+                if @rowCount <> 1
+                begin
+	                set @rowTimestamp = null;
+	                select @rowTimestamp = [timestamp] from [{0}] where [key] = @key;
+	
+	                if @rowTimestamp is null
+	                begin
+		                set @ackCode = 'NOT_EXISTS';
+	                end
+	                else
+	                begin
+		                if @oldTimestamp <> @rowTimestamp
+		                begin
+			                set @ackCode = 'TIMESTAMP_MISMATCH';
+		                end
+		                else
+		                begin
+			                set @ackCode = 'UNKNOWN';
+		                end
+	                end
+                end
+
+                select @rowCount [RowCount], @rowTimestamp [Timestamp], @ackCode [AckCode];";
+
+            return string.Format(query.Trim(), tableName);
+        }
     }
 }

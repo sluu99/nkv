@@ -25,6 +25,8 @@ namespace Nkv.Interfaces
 
         string GetInsertQuery(string tableName, out string keyParamName, out string valueParamName);
 
+        string GetUpdateQuery(string tableName, out string keyParamName, out string valueParamName, out string timestampParamName);
+
         IDbDataParameter CreateParameter(string name, SqlDbType type, object value, int size = 0);
     }
 }
