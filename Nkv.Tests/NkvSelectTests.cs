@@ -23,7 +23,7 @@ namespace Nkv.Tests
                 session.CreateTable<Book>();
 
                 var book = Book.Generate();
-                session.Save(book);
+                session.Insert(book);
 
                 var book2 = session.Select<Book>(book.Key);
 
@@ -52,7 +52,7 @@ namespace Nkv.Tests
                 // make sure there's something in the database
                 for (int i = 0; i < 10; i++)
                 {
-                    session.Save(Book.Generate());
+                    session.Insert(Book.Generate());
                 }
 
                 Assert.IsNull(session.Select<Book>(Guid.NewGuid().ToString()));
@@ -61,7 +61,7 @@ namespace Nkv.Tests
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
-        public void TestSelect_same_key_different_tables()
+        public void TestSelect_keys_on_different_tables()
         {
             Nkv nkv;
             ITestHelper helper;
@@ -72,20 +72,15 @@ namespace Nkv.Tests
                 session.CreateTable<BlogEntry>();
 
                 var book = Book.Generate();
-                var blogEntry = BlogEntry.Generate();
+                var blogEntry = BlogEntry.Generate();                
 
-                using (var tx = new TransactionScope())
-                {
-                    session.Save(book);
-                    session.Save(blogEntry);
-
-                    tx.Complete();
-                }
-
-                helper.AssertRowExists("Book", book.Key);
-                helper.AssertRowExists("BlogPosts", blogEntry.Key);
-                helper.AssertRowExists("Book", blogEntry.Key, false);
-                helper.AssertRowExists("BlogPosts", book.Key, false);
+                session.Insert(book);
+                session.Insert(blogEntry);
+                
+                Assert.IsNotNull(session.Select<Book>(book.Key));
+                Assert.IsNotNull(session.Select<BlogEntry>(blogEntry.Key));
+                Assert.IsNull(session.Select<Book>(blogEntry.Key));
+                Assert.IsNull(session.Select<BlogEntry>(book.Key));
             }
         }
     }

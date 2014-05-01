@@ -33,50 +33,7 @@ namespace Nkv
             var query = Provider.GetCreateTableQuery(tableName);
             ExecuteNonQuery(query);
         }
-
-        public void Save<T>(T entity) where T : Entity
-        {
-            ValidateEntity(entity);
-
-            string keyParamName;
-            string valueParamName;
-            string timestampParamName;
-            string tableName = TableAttribute.GetTableName(typeof(T));
-            string query = Provider.GetSaveQuery(tableName, out keyParamName, out valueParamName, out timestampParamName);
-
-            var json = JsonConvert.SerializeObject(entity);
-            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, size: Entity.MaxKeySize);
-            var valueParam = Provider.CreateParameter(valueParamName, SqlDbType.NVarChar, json);
-            var timestampParam = Provider.CreateParameter(timestampParamName, SqlDbType.DateTime, entity.Timestamp);
-
-            Action<IDataReader> readerCallback = (reader) =>
-            {
-                if (!reader.Read())
-                {
-                    throw new Exception("Unknown error during insertion");
-                }
-
-                int i = 0;
-                int rowCount = reader.GetInt32(i++);
-                var timestamp = reader.GetDateTime(i++);
-                var ackCode = reader.GetString(i++);
-
-                if (rowCount != 1 || !string.Equals(ackCode, "SUCCESS", StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new NkvException(string.Format("Error saving the entity key={0}", entity.Key))
-                    {
-                        RowCount = rowCount,
-                        AckCode = ackCode,
-                        Timestamp = timestamp
-                    };
-                }
-
-                entity.Timestamp = timestamp;
-            };
-
-            ExecuteReader(query, readerCallback, keyParam, valueParam, timestampParam);
-        }
-
+        
         public T Select<T>(string key) where T : Entity
         {
             if (string.IsNullOrWhiteSpace(key))

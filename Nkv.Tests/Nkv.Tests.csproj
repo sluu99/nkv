@@ -71,7 +71,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NkvCreateTableTests.cs" />
     <Compile Include="Sql\SqlTestHelper.cs" />
-    <Compile Include="NkvSaveTests.cs" />
     <Compile Include="TestConfiguration.cs" />
     <Compile Include="NkvSelectTests.cs" />
     <Compile Include="NkvDeleteTests.cs" />

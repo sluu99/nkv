@@ -24,7 +24,7 @@ namespace Nkv.Tests
             {
                 session.CreateTable<Book>();
 
-                session.Save(book);
+                session.Insert(book);
                 helper.AssertRowExists("Book", book.Key);
 
                 session.Delete(book);
@@ -46,12 +46,12 @@ namespace Nkv.Tests
             {
                 session.CreateTable<Book>();
 
-                session.Save(book);
+                session.Insert(book);
                 helper.AssertRowExists("Book", book.Key);
 
                 Thread.Sleep(1000); // make sure the time has changed
                 var bookInstance2 = session.Select<Book>(book.Key);                               
-                session.Save(bookInstance2);
+                session.Update(bookInstance2);
 
                 try
                 {
@@ -82,7 +82,7 @@ namespace Nkv.Tests
             {
                 session.CreateTable<Book>();
 
-                session.Save(book); // insert
+                session.Insert(book);
                 helper.AssertRowExists("Book", book.Key);
                                 
                 session.Delete(book);
