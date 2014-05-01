@@ -118,12 +118,30 @@ namespace Nkv
             var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, 128);
             var timestampParam = Provider.CreateParameter(timestampParamName, SqlDbType.DateTime, entity.Timestamp);
 
-            int rowCount = ExecuteNonQuery(query, keyParam, timestampParam);
-
-            if (rowCount != 1)
+            Action<IDataReader> readerCallback = (reader) =>
             {
-                throw new Exception("Delete validation failed");
-            }
+                if (!reader.Read())
+                {
+                    throw new Exception("Unknown error during deletion");
+                }
+
+                int i = 0;
+                int rowCount = reader.GetInt32(i++);
+                var timestamp = reader.IsDBNull(i++) ? Entity.DefaultTimestamp : reader.GetDateTime(i - 1);
+                var ackCode = reader.GetString(i++);
+
+                if (rowCount != 1 || !string.Equals(ackCode, "SUCCESS", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new NkvException(string.Format("Error deleting the entity key={0}", entity.Key))
+                    {
+                        RowCount = rowCount,
+                        AckCode = ackCode,
+                        Timestamp = timestamp
+                    };
+                }
+            };
+
+            ExecuteReader(query, readerCallback, keyParam, timestampParam);
         }
 
         #region Helper methods

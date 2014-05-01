@@ -48,7 +48,7 @@ namespace Nkv.Tests
             using (var tx = new TransactionScope())
             {
                 using (var session = nkv.BeginSession())
-                {                    
+                {
                     session.Save(book1);
                     session.Save(book2);
                     tx.Complete();
@@ -223,7 +223,7 @@ namespace Nkv.Tests
                     Assert.AreEqual("TIMESTAMP_MISMATCH", ex.AckCode, ignoreCase: true);
                 }
             }
-            
+
         }
 
         #endregion

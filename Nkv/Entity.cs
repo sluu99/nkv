@@ -8,8 +8,8 @@ namespace Nkv
 {
     public abstract class Entity
     {
-        private static readonly DateTime DefaultTimestamp = DateTime.Parse("1990-09-01");
-        private const int MaxKeySize = 128;
+        internal static readonly DateTime DefaultTimestamp = DateTime.Parse("1990-09-01");
+        internal const int MaxKeySize = 128;
 
         private string _key;
 
