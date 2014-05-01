@@ -223,7 +223,6 @@ namespace Nkv.Tests
                     Assert.AreEqual("TIMESTAMP_MISMATCH", ex.AckCode, ignoreCase: true);
                 }
             }
-
         }
 
         #endregion

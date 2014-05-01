@@ -65,5 +65,39 @@ namespace Nkv.Tests
                 }
             }
         }
+
+
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestDelete_non_existent()
+        {
+            Nkv nkv;
+            ITestHelper helper;
+            TestConfiguration.ParseContext(TestContext, out nkv, out helper);
+
+            var book = Book.Generate();
+
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+
+                session.Save(book); // insert
+                helper.AssertRowExists("Book", book.Key);
+                                
+                session.Delete(book);
+                helper.AssertRowExists("Book", book.Key, false);
+
+                try
+                {
+                    session.Delete(book);
+                    Assert.Fail("Expecting an instance of NkvException thrown with AckCode=NOT_EXISTS");
+                }
+                catch (NkvException ex)
+                {
+                    Assert.AreEqual("NOT_EXISTS", ex.AckCode, ignoreCase: true);
+                }
+            }
+        }
     }
 }
