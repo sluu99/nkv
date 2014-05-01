@@ -23,6 +23,8 @@ namespace Nkv.Interfaces
 
         string GetDeleteQuery(string tableName, out string keyParamName, out string timestampParamName);
 
+        string GetInsertQuery(string tableName, out string keyParamName, out string valueParamName);
+
         IDbDataParameter CreateParameter(string name, SqlDbType type, object value, int size = 0);
     }
 }

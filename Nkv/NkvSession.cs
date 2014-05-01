@@ -45,7 +45,7 @@ namespace Nkv
             string query = Provider.GetSaveQuery(tableName, out keyParamName, out valueParamName, out timestampParamName);
 
             var json = JsonConvert.SerializeObject(entity);
-            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, size: 128);
+            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, size: Entity.MaxKeySize);
             var valueParam = Provider.CreateParameter(valueParamName, SqlDbType.NVarChar, json);
             var timestampParam = Provider.CreateParameter(timestampParamName, SqlDbType.DateTime, entity.Timestamp);
 
@@ -86,7 +86,7 @@ namespace Nkv
 
             string keyParamName;
             string query = Provider.GetSelectQuery(TableAttribute.GetTableName(typeof(T)), out keyParamName);
-            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, key, 128);
+            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, key, Entity.MaxKeySize);
 
             T entity = null;
 
@@ -108,43 +108,74 @@ namespace Nkv
             return entity;
         }
 
+        public void Insert<T>(T entity) where T : Entity
+        {
+            ValidateEntity(entity);
+
+            var json = JsonConvert.SerializeObject(entity);
+
+            string tableName = TableAttribute.GetTableName(typeof(T));
+            string keyParamName;
+            string valueParamName;
+            string query = Provider.GetInsertQuery(tableName, out keyParamName, out valueParamName);
+            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, size: Entity.MaxKeySize);
+            var valueParam = Provider.CreateParameter(valueParamName, SqlDbType.NVarChar, json);
+
+            Action<IDataReader> readerCallback = (reader) =>
+            {
+                DateTime timestamp;
+                ValidateReaderResult(reader, 1, string.Format("Error inserting {0} entity with key={1}", tableName, entity.Key), out timestamp);
+                entity.Timestamp = timestamp;
+            };
+
+            ExecuteReader(query, readerCallback, keyParam, valueParam);
+
+        }
+
         public void Delete<T>(T entity) where T : Entity
         {
             ValidateEntity(entity);
 
+            string tableName = TableAttribute.GetTableName(typeof(T));
             string keyParamName;
             string timestampParamName;
-            string query = Provider.GetDeleteQuery(TableAttribute.GetTableName(typeof(T)), out keyParamName, out timestampParamName);
-            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, 128);
+            string query = Provider.GetDeleteQuery(tableName, out keyParamName, out timestampParamName);
+            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, Entity.MaxKeySize);
             var timestampParam = Provider.CreateParameter(timestampParamName, SqlDbType.DateTime, entity.Timestamp);
 
             Action<IDataReader> readerCallback = (reader) =>
             {
-                if (!reader.Read())
-                {
-                    throw new Exception("Unknown error during deletion");
-                }
-
-                int i = 0;
-                int rowCount = reader.GetInt32(i++);
-                var timestamp = reader.IsDBNull(i++) ? Entity.DefaultTimestamp : reader.GetDateTime(i - 1);
-                var ackCode = reader.GetString(i++);
-
-                if (rowCount != 1 || !string.Equals(ackCode, "SUCCESS", StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new NkvException(string.Format("Error deleting the entity key={0}", entity.Key))
-                    {
-                        RowCount = rowCount,
-                        AckCode = ackCode,
-                        Timestamp = timestamp
-                    };
-                }
+                DateTime timestamp;
+                ValidateReaderResult(reader, 1, string.Format("Error deleting {0} entity with key={1}", tableName, entity.Key), out timestamp);
             };
 
             ExecuteReader(query, readerCallback, keyParam, timestampParam);
         }
 
         #region Helper methods
+
+        private void ValidateReaderResult(IDataReader reader, int expectedRowCount, string errorMessage, out DateTime timestamp)
+        {
+            if (!reader.Read())
+            {
+                throw new Exception("No result from data reader");
+            }
+
+            int i = 0;
+            int rowCount = reader.GetInt32(i++);
+            timestamp = reader.IsDBNull(i++) ? Entity.DefaultTimestamp : reader.GetDateTime(i - 1);
+            var ackCode = reader.GetString(i++);
+
+            if (rowCount != expectedRowCount || !string.Equals(ackCode, "SUCCESS", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new NkvException(errorMessage)
+                {
+                    RowCount = rowCount,
+                    AckCode = ackCode,
+                    Timestamp = timestamp
+                };
+            }
+        }
 
         private int ExecuteNonQuery(string query, params IDbDataParameter[] parameters)
         {

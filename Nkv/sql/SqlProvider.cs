@@ -161,5 +161,48 @@ namespace Nkv.Sql
 
             return string.Format(query.Trim(), tableName);
         }
+
+
+        public string GetInsertQuery(string tableName, out string keyParamName, out string valueParamName)
+        {
+            keyParamName = "@key";
+            valueParamName = "@value";
+
+            string query = @"
+                declare @timestamp datetime = null;
+                declare @ackCode varchar(32);
+                declare @rowCount int;
+
+                select @timestamp = [timestamp]
+                from [{0}]
+                where [key] = @key;
+
+                if @timestamp is not null
+                begin
+	                set @ackCode = 'ROW_EXISTS';
+	                set @rowCount = 0;
+                end
+                else
+                begin
+	                set @timestamp = sysutcdatetime();
+	
+	                insert into [{0}]([key], [value], [timestamp])
+	                values(@key, @value, @timestamp);
+	
+	                set @rowCount = @@ROWCOUNT;
+	                if @rowCount = 1
+	                begin
+		                set @ackCode = 'SUCCESS';
+	                end
+	                else
+	                begin
+		                set @ackCode = 'UNKNOWN';
+	                end
+                end
+
+                select @rowCount [RowCount], @timestamp [Timestamp], @ackCode [AckCode];";
+
+            return string.Format(query.Trim(), tableName);
+        }
     }
 }
