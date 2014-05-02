@@ -4,23 +4,23 @@ using Nkv.Attributes;
 
 namespace Nkv.Tests
 {
-    [Table("CountTest")]
-    internal class CountTestFixture : Entity
-    {
-        private static Random _rand = new Random();
-
-        public CountTestFixture()
-        {
-            Key = Guid.NewGuid().ToString();
-            Value = _rand.Next();
-        }
-
-        public int Value { get; set; }
-    }
-
     [TestClass]
     public class NkvCountTests
     {
+        [Table("CountTest")]
+        private class CountTestFixture : Entity
+        {
+            private static Random _rand = new Random();
+
+            public CountTestFixture()
+            {
+                Key = Guid.NewGuid().ToString();
+                Value = _rand.Next();
+            }
+
+            public int Value { get; set; }
+        }
+
         public TestContext TestContext { get; set; }
 
         [TestMethod]

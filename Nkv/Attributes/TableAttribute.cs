@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Nkv.Attributes
@@ -22,6 +23,10 @@ namespace Nkv.Attributes
         /// </summary>
         public string Name { get; set; }
 
+        #region Static
+
+        private static Dictionary<Type, string> TableNames = new Dictionary<Type, string>();
+
         /// <summary>
         /// Get the table name for a particular object type
         /// </summary>
@@ -29,17 +34,30 @@ namespace Nkv.Attributes
         /// <returns></returns>
         public static string GetTableName(Type type)
         {
-            var attrs = type.GetCustomAttributes(typeof(TableAttribute), false);
-            if (attrs != null && attrs.Length > 0)
+            if (!TableNames.ContainsKey(type))
             {
-                var tableAttr = attrs[0] as TableAttribute;
-                if (tableAttr != null && !string.IsNullOrWhiteSpace(tableAttr.Name))
+                lock (TableNames)
                 {
-                    return tableAttr.Name;
+                    if (!TableNames.ContainsKey(type))
+                    {
+                        TableNames[type] = type.Name;
+
+                        var attrs = type.GetCustomAttributes(typeof(TableAttribute), false);
+                        if (attrs != null && attrs.Length > 0)
+                        {
+                            var tableAttr = attrs[0] as TableAttribute;
+                            if (tableAttr != null && !string.IsNullOrWhiteSpace(tableAttr.Name))
+                            {
+                                TableNames[type] = tableAttr.Name;
+                            }
+                        }
+                    }
                 }
             }
-            
-            return type.Name;
+
+            return TableNames[type];
         }
+
+        #endregion
     }
 }
