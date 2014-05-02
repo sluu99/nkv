@@ -251,5 +251,11 @@ namespace Nkv.Sql
 
             return string.Format(query.Trim(), tableName);
         }
+
+
+        public string GetCountQuery(string tableName)
+        {
+            return string.Format("select count_big(1) from [{0}]", tableName);
+        }
     }
 }

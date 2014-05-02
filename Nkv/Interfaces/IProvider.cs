@@ -27,6 +27,8 @@ namespace Nkv.Interfaces
 
         string GetUpdateQuery(string tableName, out string keyParamName, out string valueParamName, out string timestampParamName);
 
+        string GetCountQuery(string tableName);
+
         IDbDataParameter CreateParameter(string name, SqlDbType type, object value, int size = 0);
     }
 }

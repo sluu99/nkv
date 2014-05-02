@@ -27,13 +27,33 @@ namespace Nkv
         private IDbConnection Connection { get; set; }
         private IProvider Provider { get; set; }
 
-        public void CreateTable<T>()
+        public void CreateTable<T>() where T : Entity
         {
             var tableName = TableAttribute.GetTableName(typeof(T));
             var query = Provider.GetCreateTableQuery(tableName);
             ExecuteNonQuery(query);
         }
-        
+
+        public long Count<T>() where T : Entity
+        {
+            var tableName = TableAttribute.GetTableName(typeof(T));
+            var query = Provider.GetCountQuery(tableName);
+            long count = 0;
+
+            Action<IDataReader> readerCallback = (reader) =>
+            {
+                if (!reader.Read())
+                {
+                    throw new DataException("Count query did not return any data");
+                }
+                count = reader.GetInt64(0);
+            };
+
+            ExecuteReader(query, readerCallback);
+
+            return count;
+        }
+
         public T Select<T>(string key) where T : Entity
         {
             if (string.IsNullOrWhiteSpace(key))
@@ -141,7 +161,7 @@ namespace Nkv
         {
             if (!reader.Read())
             {
-                throw new Exception("No result from data reader");
+                throw new DataException("No result from data reader");
             }
 
             int i = 0;
