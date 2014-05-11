@@ -15,9 +15,7 @@ namespace Nkv.Interfaces
         /// </summary>
         string Escape(string x);
 
-        string GetCreateTableQuery(string tableName);
-
-        string GetSaveQuery(string tableName, out string keyParamName, out string valueParamName, out string timestampParamName);
+        string[] GetCreateTableQueries(string tableName);
 
         string GetSelectQuery(string tableName, out string keyParamName);
 

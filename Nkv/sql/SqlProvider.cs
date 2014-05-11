@@ -2,15 +2,91 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
+using System.Reflection;
 
 namespace Nkv.Sql
 {
     public class SqlProvider : IProvider
     {
+        #region Static
+
+        private static bool TemplatesPopulated = false;
+        private static object PopulateTemplatePadLock = new object();
+        private static string CreateTableTemplate;
+        private static string CreateStoredProcsTemplate;
+        private static string InsertEntityTemplate;
+        private static string DeleteEntityTemplate;
+        private static string UpdateEntityTemplate;
+
+        private static void PopulateQueryTemplates()
+        {
+            if (SqlProvider.TemplatesPopulated)
+            {
+                return;
+            }
+
+            lock (SqlProvider.PopulateTemplatePadLock)
+            {
+                if (SqlProvider.TemplatesPopulated)
+                {
+                    return;
+                }
+
+                var assembly = Assembly.GetExecutingAssembly();
+
+                using (var stream = assembly.GetManifestResourceStream("Nkv.Sql.Queries.SqlCreateTable.txt"))
+                {
+                    using (var reader = new StreamReader(stream))
+                    {
+                        SqlProvider.CreateTableTemplate = reader.ReadToEnd().Trim();
+                    }
+                }
+
+                using (var stream = assembly.GetManifestResourceStream("Nkv.Sql.Queries.SqlCreateStoredProcs.txt"))
+                {
+                    using (var reader = new StreamReader(stream))
+                    {
+                        SqlProvider.CreateStoredProcsTemplate = reader.ReadToEnd().Trim();
+                    }
+                }
+
+                using (var stream = assembly.GetManifestResourceStream("Nkv.Sql.Queries.SqlInsertEntity.txt"))
+                {
+                    using (var reader = new StreamReader(stream))
+                    {
+                        SqlProvider.InsertEntityTemplate = reader.ReadToEnd().Trim();
+                    }
+                }
+
+                using (var stream = assembly.GetManifestResourceStream("Nkv.Sql.Queries.SqlDeleteEntity.txt"))
+                {
+                    using (var reader = new StreamReader(stream))
+                    {
+                        SqlProvider.DeleteEntityTemplate = reader.ReadToEnd().Trim();
+                    }
+                }
+
+                using (var stream = assembly.GetManifestResourceStream("Nkv.Sql.Queries.SqlUpdateEntity.txt"))
+                {
+                    using (var reader = new StreamReader(stream))
+                    {
+                        SqlProvider.UpdateEntityTemplate = reader.ReadToEnd().Trim();
+                    }
+                }
+
+                SqlProvider.TemplatesPopulated = true;
+            }
+        }
+
+        #endregion
+
         private string _connectionString;
 
         public SqlProvider(string connectionString)
         {
+            SqlProvider.PopulateQueryTemplates();
+
             if (string.IsNullOrWhiteSpace(connectionString))
             {
                 throw new ArgumentException("SQL Server connection string is required");
@@ -45,59 +121,6 @@ namespace Nkv.Sql
             return p;
         }
 
-        public string GetSaveQuery(string tableName, out string keyParamName, out string valueParamName, out string timestampParamName)
-        {
-            keyParamName = "@key";
-            valueParamName = "@value";
-            timestampParamName = "@oldTimestamp";
-
-            string query = @"
-                declare @newTimestamp datetime = sysutcdatetime();
-                declare @rowCount int;
-                declare @ackCode varchar(32) = 'SUCCESS'
-                declare @recordTimestamp datetime
-                declare @returnTimestamp datetime
-
-                set @returnTimestamp = @newTimestamp;
-
-                update [{0}] set [value] = @value, [timestamp] = @newTimestamp
-                where [key] = @key and [timestamp] = @oldTimestamp;
-
-                set @rowCount = @@rowcount;
-
-                if @rowCount <> 1
-                begin
-	                set @recordTimestamp = null;
-	                select @recordTimestamp = [timestamp] from [{0}] where [key] = @key;
-
-	                if @recordTimestamp is not null -- record found
-	                begin
-		                if @recordTimestamp <> @oldTimestamp
-		                begin
-			                set @ackCode = 'TIMESTAMP_MISMATCH';
-                            set @returnTimestamp = @recordTimestamp;
-		                end
-		                else
-		                begin
-			                set @ackCode = 'UNKNOWN';
-		                end
-	                end
-	                else
-	                begin
-		                insert into [{0}]([key], [value], [timestamp]) values(@key, @value, @newTimestamp);
-		
-		                set @rowCount = @@rowCount;
-		                if @rowCount <> 1
-		                begin
-			                set @ackCode = 'UNKNOWN';
-		                end
-	                end
-                end
-
-                select @rowCount [RowCount], @returnTimestamp [Timestamp], @ackCode [AckCode]";
-
-            return string.Format(query.Trim(), tableName);
-        }
 
         public string GetSelectQuery(string tableName, out string keyParamName)
         {
@@ -110,146 +133,50 @@ namespace Nkv.Sql
         }
 
 
-        public string GetCreateTableQuery(string tableName)
+        public string[] GetCreateTableQueries(string tableName)
         {
-            string query =
-                @"if not exists (select 1 from sys.tables where name = '{0}')
-                begin
-                    create table [{0}] (
-                        [key] nvarchar(128) collate SQL_Latin1_General_CP1_CS_AS primary key not null, 
-                        [value] nvarchar(max), 
-                        [timestamp] datetime not null)
-                end";
-            return string.Format(query.Trim(), tableName);
+            return new string[]
+            {
+                string.Format(SqlProvider.CreateTableTemplate, tableName),
+                string.Format(SqlProvider.CreateStoredProcsTemplate, tableName),
+                string.Format(SqlProvider.InsertEntityTemplate, tableName),
+                string.Format(SqlProvider.DeleteEntityTemplate, tableName),
+                string.Format(SqlProvider.UpdateEntityTemplate, tableName),
+            };
         }
 
 
         public string GetDeleteQuery(string tableName, out string keyParamName, out string timestampParamName)
         {
-            keyParamName = "@key";
-            timestampParamName = "@timestamp";
+            keyParamName = "@keyInput";
+            timestampParamName = "@timestampInput";
 
-            string query = @"
-                declare @rowTimestamp datetime;
-                declare @rowCount int;
-                declare @ackCode varchar(32) = 'SUCCESS'
+            string query = "exec nkv_Delete{0}Entity @key=@keyInput, @timestamp=@timestampInput";
 
-                delete from [{0}] where [key] = @key and [timestamp] = @timestamp;
-                
-                set @rowCount = @@rowcount;
-                if @rowCount <> 1
-                begin
-                    select @rowTimestamp = [timestamp] from [{0}] where [key] = @key;
-                    if @rowTimestamp is null
-                    begin
-                        set @ackCode = 'NOT_EXISTS';
-                    end
-                    else
-                    begin
-                        if @rowTimestamp <> @timestamp
-                        begin
-                            set @ackCode = 'TIMESTAMP_MISMATCH';            
-                        end
-                        else
-                        begin
-                            set @ackCode = 'UNKNOWN';
-                        end
-                    end
-                end
-
-                select @rowCount [RowCount], @rowTimestamp [Timestamp], @ackCode [AckCode]";
-
-            return string.Format(query.Trim(), tableName);
+            return string.Format(query, tableName);
         }
 
 
         public string GetInsertQuery(string tableName, out string keyParamName, out string valueParamName)
         {
-            keyParamName = "@key";
-            valueParamName = "@value";
+            keyParamName = "@keyInput";
+            valueParamName = "@valueInput";
 
-            string query = @"
-                declare @timestamp datetime = null;
-                declare @ackCode varchar(32);
-                declare @rowCount int;
+            string query = "exec nkv_Insert{0}Entity @key=@keyInput, @value=@valueInput";
 
-                select @timestamp = [timestamp]
-                from [{0}]
-                where [key] = @key;
-
-                if @timestamp is not null
-                begin
-	                set @ackCode = 'ROW_EXISTS';
-	                set @rowCount = 0;
-                end
-                else
-                begin
-	                set @timestamp = sysutcdatetime();
-	
-	                insert into [{0}]([key], [value], [timestamp])
-	                values(@key, @value, @timestamp);
-	
-	                set @rowCount = @@ROWCOUNT;
-	                if @rowCount = 1
-	                begin
-		                set @ackCode = 'SUCCESS';
-	                end
-	                else
-	                begin
-		                set @ackCode = 'UNKNOWN';
-	                end
-                end
-
-                select @rowCount [RowCount], @timestamp [Timestamp], @ackCode [AckCode];";
-
-            return string.Format(query.Trim(), tableName);
+            return string.Format(query, tableName);
         }
 
 
         public string GetUpdateQuery(string tableName, out string keyParamName, out string valueParamName, out string timestampParamName)
         {
-            keyParamName = "@key";
-            valueParamName = "@value";
-            timestampParamName = "@oldTimestamp";
+            keyParamName = "@keyInput";
+            valueParamName = "@valueInput";
+            timestampParamName = "@oldTimestampInput";
 
-            string query = @"
-                declare @rowTimestamp datetime = sysutcdatetime();
-                declare @rowCount int = 0;
-                declare @ackCode varchar(32);
+            string query = "exec nkv_Update{0}Entity @key=@keyInput, @value=@valueInput, @oldTimestamp=@oldTimestampInput";
 
-                update [{0}] set
-	                [value] = @value,
-	                [timestamp] = @rowTimestamp
-                where [key] = @key and [timestamp] = @oldTimestamp;
-
-                set @rowCount = @@ROWCOUNT;
-                set @ackCode = 'SUCCESS';
-
-                if @rowCount <> 1
-                begin
-	                set @rowTimestamp = null;
-	                select @rowTimestamp = [timestamp] from [{0}] where [key] = @key;
-	
-	                if @rowTimestamp is null
-	                begin
-		                set @ackCode = 'NOT_EXISTS';
-	                end
-	                else
-	                begin
-		                if @oldTimestamp <> @rowTimestamp
-		                begin
-			                set @ackCode = 'TIMESTAMP_MISMATCH';
-		                end
-		                else
-		                begin
-			                set @ackCode = 'UNKNOWN';
-		                end
-	                end
-                end
-
-                select @rowCount [RowCount], @rowTimestamp [Timestamp], @ackCode [AckCode];";
-
-            return string.Format(query.Trim(), tableName);
+            return string.Format(query, tableName);
         }
 
 

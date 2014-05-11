@@ -1,0 +1,36 @@
+﻿alter procedure nkv_Delete{0}Entity
+(
+	@key nvarchar(128),
+	@timestamp datetime
+)
+as
+begin
+	declare @rowTimestamp datetime;
+	declare @rowCount int;
+	declare @ackCode varchar(32) = 'SUCCESS'
+
+	delete from [{0}] where [key] = @key and [timestamp] = @timestamp;
+                
+	set @rowCount = @@rowcount;
+	if @rowCount <> 1
+	begin
+		select @rowTimestamp = [timestamp] from [{0}] where [key] = @key;
+		if @rowTimestamp is null
+		begin
+			set @ackCode = 'NOT_EXISTS';
+		end
+		else
+		begin
+			if @rowTimestamp <> @timestamp
+			begin
+				set @ackCode = 'TIMESTAMP_MISMATCH';            
+			end
+			else
+			begin
+				set @ackCode = 'UNKNOWN';
+			end
+		end
+	end
+
+	select @rowCount [RowCount], @rowTimestamp [Timestamp], @ackCode [AckCode]
+end

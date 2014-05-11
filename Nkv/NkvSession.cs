@@ -30,8 +30,12 @@ namespace Nkv
         public void CreateTable<T>() where T : Entity
         {
             var tableName = TableAttribute.GetTableName(typeof(T));
-            var query = Provider.GetCreateTableQuery(tableName);
-            ExecuteNonQuery(query);
+            var queries = Provider.GetCreateTableQueries(tableName);
+            
+            foreach (var query in queries)
+            {
+                ExecuteNonQuery(query);
+            }
         }
 
         public long Count<T>() where T : Entity

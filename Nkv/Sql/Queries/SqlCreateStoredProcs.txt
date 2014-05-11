@@ -1,0 +1,20 @@
+﻿if not exists(
+	select 1 from dbo.sysobjects
+	where id = object_id('nkv_Insert{0}Entity') and OBJECTPROPERTY(id, 'IsProcedure') = 1)
+begin
+	exec ('create procedure nkv_Insert{0}Entity as return');
+end
+
+if not exists(
+	select 1 from dbo.sysobjects
+	where id = object_id('nkv_Update{0}Entity') and OBJECTPROPERTY(id, 'IsProcedure') = 1)
+begin
+	exec ('create procedure nkv_Update{0}Entity as return');
+end
+
+if not exists(
+	select 1 from dbo.sysobjects
+	where id = object_id('nkv_Delete{0}Entity') and OBJECTPROPERTY(id, 'IsProcedure') = 1)
+begin
+	exec ('create procedure nkv_Delete{0}Entity as return');
+end

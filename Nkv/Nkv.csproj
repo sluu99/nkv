@@ -57,6 +57,19 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Sql\Queries\SqlInsertEntity.txt" />
+    <EmbeddedResource Include="Sql\Queries\SqlCreateStoredProcs.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Sql\Queries\SqlCreateTable.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Sql\Queries\SqlDeleteEntity.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Sql\Queries\SqlUpdateEntity.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
