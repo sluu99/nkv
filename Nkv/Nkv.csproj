@@ -49,6 +49,7 @@
     <Compile Include="Entity.cs" />
     <Compile Include="Interfaces\IProvider.cs" />
     <Compile Include="Nkv.cs" />
+    <Compile Include="NkvAckCode.cs" />
     <Compile Include="NkvException.cs" />
     <Compile Include="NkvSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

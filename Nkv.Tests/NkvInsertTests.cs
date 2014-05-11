@@ -192,7 +192,7 @@ namespace Nkv.Tests
                 }
                 catch (NkvException ex)
                 {
-                    Assert.AreEqual("ROW_EXISTS", ex.AckCode, ignoreCase:true);
+                    Assert.AreEqual(NkvAckCode.KeyExists, ex.AckCode);
                 }
             }
         }

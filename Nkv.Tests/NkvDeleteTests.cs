@@ -60,7 +60,7 @@ namespace Nkv.Tests
                 }
                 catch (NkvException ex)
                 {
-                    Assert.AreEqual("TIMESTAMP_MISMATCH", ex.AckCode);
+                    Assert.AreEqual(NkvAckCode.TimestampMismatch, ex.AckCode);
                     Assert.AreEqual(bookInstance2.Timestamp, ex.Timestamp);
                 }
             }
@@ -95,7 +95,7 @@ namespace Nkv.Tests
                 }
                 catch (NkvException ex)
                 {
-                    Assert.AreEqual("NOT_EXISTS", ex.AckCode, ignoreCase: true);
+                    Assert.AreEqual(NkvAckCode.KeyNotFound, ex.AckCode);
                 }
             }
         }

@@ -14,7 +14,7 @@ begin
 
 	if @timestamp is not null
 	begin
-		set @ackCode = 'ROW_EXISTS';
+		set @ackCode = 'KeyExists';
 		set @rowCount = 0;
 	end
 	else
@@ -27,11 +27,11 @@ begin
 		set @rowCount = @@ROWCOUNT;
 		if @rowCount = 1
 		begin
-			set @ackCode = 'SUCCESS';
+			set @ackCode = 'Success';
 		end
 		else
 		begin
-			set @ackCode = 'UNKNOWN';
+			set @ackCode = 'Unknown';
 		end
 	end
 

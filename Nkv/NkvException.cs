@@ -11,7 +11,7 @@ namespace Nkv
         public NkvException(string message) : base(message) { }
         public NkvException(string message, Exception innerException) : base(message, innerException) { }
 
-        public string AckCode { get; set; }
+        public NkvAckCode AckCode { get; set; }
         public int RowCount { get; set; }
         public DateTime Timestamp { get; set; }
     }

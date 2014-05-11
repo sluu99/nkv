@@ -15,7 +15,7 @@ begin
 	where [key] = @key and [timestamp] = @oldTimestamp;
 
 	set @rowCount = @@ROWCOUNT;
-	set @ackCode = 'SUCCESS';
+	set @ackCode = 'Success';
 
 	if @rowCount <> 1
 	begin
@@ -24,17 +24,17 @@ begin
 	
 		if @rowTimestamp is null
 		begin
-			set @ackCode = 'NOT_EXISTS';
+			set @ackCode = 'KeyNotFound';
 		end
 		else
 		begin
 			if @oldTimestamp <> @rowTimestamp
 			begin
-				set @ackCode = 'TIMESTAMP_MISMATCH';
+				set @ackCode = 'TimestampMismatch';
 			end
 			else
 			begin
-				set @ackCode = 'UNKNOWN';
+				set @ackCode = 'Unknown';
 			end
 		end
 	end

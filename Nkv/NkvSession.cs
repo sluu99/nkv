@@ -173,12 +173,15 @@ namespace Nkv
             timestamp = reader.IsDBNull(i++) ? Entity.DefaultTimestamp : reader.GetDateTime(i - 1);
             var ackCode = reader.GetString(i++);
 
-            if (rowCount != expectedRowCount || !string.Equals(ackCode, "SUCCESS", StringComparison.OrdinalIgnoreCase))
+            if (rowCount != expectedRowCount || !string.Equals(ackCode, "Success", StringComparison.OrdinalIgnoreCase))
             {
+                NkvAckCode ackCodeEnum = NkvAckCode.Unknown;
+                Enum.TryParse<NkvAckCode>(ackCode, out ackCodeEnum);
+
                 throw new NkvException(errorMessage)
                 {
                     RowCount = rowCount,
-                    AckCode = ackCode,
+                    AckCode = ackCodeEnum,
                     Timestamp = timestamp
                 };
             }

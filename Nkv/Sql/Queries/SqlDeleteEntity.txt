@@ -7,7 +7,7 @@ as
 begin
 	declare @rowTimestamp datetime;
 	declare @rowCount int;
-	declare @ackCode varchar(32) = 'SUCCESS'
+	declare @ackCode varchar(32) = 'Success'
 
 	delete from [{0}] where [key] = @key and [timestamp] = @timestamp;
                 
@@ -17,17 +17,17 @@ begin
 		select @rowTimestamp = [timestamp] from [{0}] where [key] = @key;
 		if @rowTimestamp is null
 		begin
-			set @ackCode = 'NOT_EXISTS';
+			set @ackCode = 'KeyNotFound';
 		end
 		else
 		begin
 			if @rowTimestamp <> @timestamp
 			begin
-				set @ackCode = 'TIMESTAMP_MISMATCH';            
+				set @ackCode = 'TimestampMismatch';            
 			end
 			else
 			begin
-				set @ackCode = 'UNKNOWN';
+				set @ackCode = 'Unknown';
 			end
 		end
 	end
