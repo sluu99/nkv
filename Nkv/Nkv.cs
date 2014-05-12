@@ -3,7 +3,7 @@ using System;
 
 namespace Nkv
 {
-    public sealed class Nkv
+    public class Nkv : INkv
     {
         private IProvider Provider { get; set; }
 
@@ -17,7 +17,7 @@ namespace Nkv
             Provider = provider;
         }
 
-        public NkvSession BeginSession()
+        public INkvSession BeginSession()
         {
             return new NkvSession(Provider);
         }

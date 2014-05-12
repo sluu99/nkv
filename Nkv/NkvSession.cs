@@ -6,7 +6,7 @@ using System.Data;
 
 namespace Nkv
 {
-    public sealed class NkvSession : IDisposable
+    public class NkvSession : INkvSession
     {
         internal NkvSession(IProvider provider)
         {
