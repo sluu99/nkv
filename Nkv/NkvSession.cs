@@ -2,6 +2,7 @@
 using Nkv.Attributes;
 using Nkv.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Data;
 
 namespace Nkv
@@ -87,6 +88,42 @@ namespace Nkv
 
             ExecuteReader(query, readerCallback, keyParam);
             return entity;
+        }
+
+        public T[] SelectPrefix<T>(string prefix) where T : Entity
+        {
+            if (string.IsNullOrWhiteSpace(prefix))
+            {
+                throw new ArgumentException("Prefix cannot be null or white space");
+            }
+
+            var tableName = TableAttribute.GetTableName(typeof(T));
+            string prefixParamName;
+            var query = Provider.GetSelectPrefixQuery(tableName, ref prefix, out prefixParamName);
+            var prefixParam = Provider.CreateParameter(prefixParamName, SqlDbType.NVarChar, prefix);
+
+            List<T> entities = new List<T>();
+
+            Action<IDataReader> readerCallback = (reader) =>
+            {
+                while (reader.Read())
+                {
+                    int i = 0;
+                    var key = reader.GetString(i++);
+                    var value = reader.GetString(i++);
+                    var timestamp = reader.GetDateTime(i++);
+
+                    var entity = JsonConvert.DeserializeObject<T>(value);
+                    entity.Key = key;
+                    entity.Timestamp = timestamp;
+
+                    entities.Add(entity);
+                }
+            };
+
+            ExecuteReader(query, readerCallback, prefixParam);
+
+            return entities.ToArray();
         }
 
         public void Insert<T>(T entity) where T : Entity

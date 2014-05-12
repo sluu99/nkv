@@ -19,6 +19,8 @@ namespace Nkv.Interfaces
 
         string GetSelectQuery(string tableName, out string keyParamName);
 
+        string GetSelectPrefixQuery(string tableName, ref string prefix, out string prefixParamName);
+
         string GetDeleteQuery(string tableName, out string keyParamName, out string timestampParamName);
 
         string GetInsertQuery(string tableName, out string keyParamName, out string valueParamName);

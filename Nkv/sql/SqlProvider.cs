@@ -184,5 +184,19 @@ namespace Nkv.Sql
         {
             return string.Format("select count_big(1) from [{0}]", tableName);
         }
+
+
+        public string GetSelectPrefixQuery(string tableName, ref string prefix, out string prefixParamName)
+        {
+            prefixParamName = "@prefix";
+
+            prefix = prefix.Replace("%", "[%]");
+            prefix = prefix.Replace("_", "[_]");
+            prefix += "%";
+
+            string query = "select [key], [value], [timestamp] from [{0}] where [key] like @prefix";
+
+            return string.Format(query, tableName);
+        }
     }
 }

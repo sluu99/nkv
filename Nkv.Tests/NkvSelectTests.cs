@@ -83,5 +83,115 @@ namespace Nkv.Tests
                 Assert.IsNull(session.Select<BlogEntry>(book.Key));
             }
         }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestSelectPrefix()
+        {
+            Nkv nkv = TestConfiguration.CreateNkv(TestContext);
+
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+                var book = Book.Generate();
+
+                session.Insert(book);
+
+                for (int i = 0; i < 10; i++)
+                {
+                    var b2 = Book.Generate();
+                    b2.Key = book.Key + "_" + b2.Key;
+                    session.Insert(b2);
+                }
+
+                var entities = session.SelectPrefix<Book>(book.Key);
+                Assert.IsNotNull(entities);
+                Assert.AreEqual(11, entities.Length); // 11, including the original book itself
+
+                entities = session.SelectPrefix<Book>(book.Key + "_");
+                Assert.IsNotNull(entities);
+                Assert.AreEqual(10, entities.Length);
+            }
+        }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestSelectPrefix_not_exists()
+        {
+            Nkv nkv = TestConfiguration.CreateNkv(TestContext);
+
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+                var book = Book.Generate();
+
+                session.Insert(book);
+
+                for (int i = 0; i < 10; i++)
+                {
+                    var b2 = Book.Generate();
+                    b2.Key = book.Key + "_" + b2.Key;
+                    session.Insert(b2);
+                }
+
+                var entities = session.SelectPrefix<Book>(Guid.NewGuid().ToString());
+                Assert.IsNotNull(entities);
+                Assert.AreEqual(0, entities.Length);
+            }
+        }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestSelectPrefix_wildcard_prefix()
+        {
+            Nkv nkv = TestConfiguration.CreateNkv(TestContext);
+
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+                var book = Book.Generate();
+
+                session.Insert(book);
+
+                var entities = session.SelectPrefix<Book>(book.Key);
+                Assert.IsNotNull(entities);
+                Assert.AreEqual(1, entities.Length);
+
+                entities = session.SelectPrefix<Book>("%" + book.Key);
+                Assert.IsNotNull(entities);
+                Assert.AreEqual(0, entities.Length);
+
+                entities = session.SelectPrefix<Book>("_" + book.Key.Substring(1));
+                Assert.IsNotNull(entities);
+                Assert.AreEqual(0, entities.Length);
+            }
+        }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestSelectPrefix_wildcard_suffix()
+        {
+            Nkv nkv = TestConfiguration.CreateNkv(TestContext);
+
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+                var book = Book.Generate();
+
+                session.Insert(book);
+
+                var entities = session.SelectPrefix<Book>(book.Key);
+                Assert.IsNotNull(entities);
+                Assert.AreEqual(1, entities.Length);
+
+                entities = session.SelectPrefix<Book>(book.Key + "%");
+                Assert.IsNotNull(entities);
+                Assert.AreEqual(0, entities.Length);
+
+                entities = session.SelectPrefix<Book>(book.Key.Substring(0, book.Key.Length - 1) + "_");
+                Assert.IsNotNull(entities);
+                Assert.AreEqual(0, entities.Length);
+            }
+        }
     }
 }
