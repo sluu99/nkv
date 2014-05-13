@@ -198,5 +198,21 @@ namespace Nkv.Sql
 
             return string.Format(query, tableName);
         }
+
+
+        public string GetSelectManyQuery(string tableName, int keyCount, out string[] keyParamNames)
+        {
+            keyParamNames = new string[keyCount];
+            for (int i = 0; i < keyCount; i++)
+            {
+                keyParamNames[i] = "@key" + i.ToString();
+            }
+
+            return string.Format(
+                "select [key], [value], [timestamp] from [{0}] where [key] in ({1})",
+                tableName,
+                string.Join(",", keyParamNames)
+            );
+        }
     }
 }

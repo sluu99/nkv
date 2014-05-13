@@ -126,6 +126,48 @@ namespace Nkv
             return entities.ToArray();
         }
 
+        public T[] SelectMany<T>(params string[] keys) where T : Entity
+        {
+            if (keys == null || keys.Length < 1)
+            {
+                return new T[0];
+            }
+
+            string[] keyParamNames;
+            var tableName = TableAttribute.GetTableName(typeof(T));
+            string query = Provider.GetSelectManyQuery(tableName, keys.Length, out keyParamNames);
+            
+            var keyParams = new IDbDataParameter[keys.Length];
+            for (int i = 0; i < keys.Length; i++)
+            {
+                keyParams[i] = Provider.CreateParameter(keyParamNames[i], SqlDbType.NVarChar, keys[i], Entity.MaxKeySize);
+            }
+            
+            var entities = new List<T>();
+
+            Action<IDataReader> readerCallback = (reader) =>
+            {
+                while (reader.Read())
+                {
+                    int i = 0;
+
+                    var key = reader.GetString(i++);
+                    var json = reader.GetString(i++);
+                    var timestamp = reader.GetDateTime(i++);
+
+                    var entity = JsonConvert.DeserializeObject<T>(json);
+                    entity.Key = key;
+                    entity.Timestamp = timestamp;
+
+                    entities.Add(entity);
+                }
+            };
+
+            ExecuteReader(query, readerCallback, keyParams);
+
+            return entities.ToArray();
+        }
+
         public void Insert<T>(T entity) where T : Entity
         {
             ValidateEntity(entity);
