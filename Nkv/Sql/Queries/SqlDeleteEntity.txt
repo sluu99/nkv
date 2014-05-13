@@ -1,4 +1,4 @@
-﻿alter procedure nkv_Delete{0}Entity
+﻿alter procedure dbo.nkv_Delete{0}Entity
 (
 	@key nvarchar(128),
 	@timestamp datetime
@@ -9,12 +9,12 @@ begin
 	declare @rowCount int;
 	declare @ackCode varchar(32) = 'Success'
 
-	delete from [{0}] where [key] = @key and [timestamp] = @timestamp;
+	delete from dbo.[{0}] where [key] = @key and [timestamp] = @timestamp;
                 
 	set @rowCount = @@rowcount;
 	if @rowCount <> 1
 	begin
-		select @rowTimestamp = [timestamp] from [{0}] where [key] = @key;
+		select @rowTimestamp = [timestamp] from dbo.[{0}] where [key] = @key;
 		if @rowTimestamp is null
 		begin
 			set @ackCode = 'KeyNotFound';

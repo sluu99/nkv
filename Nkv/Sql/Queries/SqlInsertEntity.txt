@@ -1,4 +1,4 @@
-﻿alter procedure nkv_Insert{0}Entity
+﻿alter procedure dbo.nkv_Insert{0}Entity
 (
 	@key nvarchar(128),
 	@value nvarchar(max)
@@ -9,7 +9,7 @@ begin
 	declare @rowCount int;
 
 	select @timestamp = [timestamp]
-	from [{0}]
+	from dbo.[{0}]
 	where [key] = @key;
 
 	if @timestamp is not null
@@ -21,7 +21,7 @@ begin
 	begin
 		set @timestamp = sysutcdatetime();
 	
-		insert into [{0}]([key], [value], [timestamp])
+		insert into dbo.[{0}]([key], [value], [timestamp])
 		values(@key, @value, @timestamp);
 	
 		set @rowCount = @@ROWCOUNT;

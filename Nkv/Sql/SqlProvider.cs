@@ -126,7 +126,7 @@ namespace Nkv.Sql
         {
             keyParamName = "@key";
 
-            string query = "select [value], [timestamp] from [{0}] where [key] = @key";
+            string query = "select [value], [timestamp] from dbo.[{0}] where [key] = @key";
             query = string.Format(query, tableName);
 
             return query;
@@ -151,7 +151,7 @@ namespace Nkv.Sql
             keyParamName = "@keyInput";
             timestampParamName = "@timestampInput";
 
-            string query = "exec nkv_Delete{0}Entity @key=@keyInput, @timestamp=@timestampInput";
+            string query = "exec dbo.[nkv_Delete{0}Entity] @key=@keyInput, @timestamp=@timestampInput";
 
             return string.Format(query, tableName);
         }
@@ -162,7 +162,7 @@ namespace Nkv.Sql
             keyParamName = "@keyInput";
             valueParamName = "@valueInput";
 
-            string query = "exec nkv_Insert{0}Entity @key=@keyInput, @value=@valueInput";
+            string query = "exec dbo.[nkv_Insert{0}Entity] @key=@keyInput, @value=@valueInput";
 
             return string.Format(query, tableName);
         }
@@ -174,7 +174,7 @@ namespace Nkv.Sql
             valueParamName = "@valueInput";
             timestampParamName = "@oldTimestampInput";
 
-            string query = "exec nkv_Update{0}Entity @key=@keyInput, @value=@valueInput, @oldTimestamp=@oldTimestampInput";
+            string query = "exec dbo.[nkv_Update{0}Entity] @key=@keyInput, @value=@valueInput, @oldTimestamp=@oldTimestampInput";
 
             return string.Format(query, tableName);
         }
@@ -182,7 +182,7 @@ namespace Nkv.Sql
 
         public string GetCountQuery(string tableName)
         {
-            return string.Format("select count_big(1) from [{0}]", tableName);
+            return string.Format("select count_big(1) from dbo.[{0}]", tableName);
         }
 
 
@@ -194,7 +194,7 @@ namespace Nkv.Sql
             prefix = prefix.Replace("_", "[_]");
             prefix += "%";
 
-            string query = "select [key], [value], [timestamp] from [{0}] where [key] like @prefix";
+            string query = "select [key], [value], [timestamp] from dbo.[{0}] where [key] like @prefix";
 
             return string.Format(query, tableName);
         }
@@ -209,7 +209,7 @@ namespace Nkv.Sql
             }
 
             return string.Format(
-                "select [key], [value], [timestamp] from [{0}] where [key] in ({1})",
+                "select [key], [value], [timestamp] from dbo.[{0}] where [key] in ({1})",
                 tableName,
                 string.Join(",", keyParamNames)
             );

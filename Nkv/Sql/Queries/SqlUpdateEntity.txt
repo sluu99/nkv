@@ -1,4 +1,4 @@
-﻿alter procedure nkv_Update{0}Entity
+﻿alter procedure dbo.nkv_Update{0}Entity
 (
 	@key nvarchar(128),
 	@value nvarchar(max),
@@ -9,7 +9,7 @@ begin
 	declare @rowCount int = 0;
 	declare @ackCode varchar(32);
 
-	update [{0}] set
+	update dbo.[{0}] set
 		[value] = @value,
 		[timestamp] = @rowTimestamp
 	where [key] = @key and [timestamp] = @oldTimestamp;
@@ -20,7 +20,7 @@ begin
 	if @rowCount <> 1
 	begin
 		set @rowTimestamp = null;
-		select @rowTimestamp = [timestamp] from [{0}] where [key] = @key;
+		select @rowTimestamp = [timestamp] from dbo.[{0}] where [key] = @key;
 	
 		if @rowTimestamp is null
 		begin
