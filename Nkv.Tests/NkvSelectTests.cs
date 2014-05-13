@@ -2,6 +2,7 @@
 using Nkv.Tests.Fixtures;
 using System;
 using System.Transactions;
+using System.Linq;
 
 namespace Nkv.Tests
 {
@@ -9,6 +10,8 @@ namespace Nkv.Tests
     public class NkvSelectTests
     {
         public TestContext TestContext { get; set; }
+
+        #region Select
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
@@ -83,6 +86,10 @@ namespace Nkv.Tests
                 Assert.IsNull(session.Select<BlogEntry>(book.Key));
             }
         }
+
+        #endregion
+
+        #region SelectPrefix
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
@@ -193,5 +200,86 @@ namespace Nkv.Tests
                 Assert.AreEqual(0, entities.Length);
             }
         }
+
+        #endregion
+
+        #region SelectMany
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestSelectMany()
+        {
+            Nkv nkv = TestConfiguration.CreateNkv(TestContext);
+
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+
+                var books = new Book[10];
+
+                for (int i = 0; i < books.Length; i++)
+                {
+                    books[i] = Book.Generate();
+                    session.Insert(books[i]);
+                }
+
+                var selectManyBooks = session.SelectMany<Book>(books.Select(b => b.Key).Take(5).ToArray());
+
+                Assert.IsNotNull(selectManyBooks);
+                Assert.AreEqual(5, selectManyBooks.Length);
+            }
+        }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestSelectMany_partial_exists()
+        {
+            Nkv nkv = TestConfiguration.CreateNkv(TestContext);
+
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+
+                var books = new Book[10];
+
+                for (int i = 0; i < books.Length; i++)
+                {
+                    books[i] = Book.Generate();
+                    session.Insert(books[i]);
+                }
+
+                var selectManyBooks = session.SelectMany<Book>(books[0].Key, books[1].Key, Guid.NewGuid().ToString());
+
+                Assert.IsNotNull(selectManyBooks);
+                Assert.AreEqual(2, selectManyBooks.Length);
+            }
+        }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestSelectMany_none_exists()
+        {
+            Nkv nkv = TestConfiguration.CreateNkv(TestContext);
+
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+
+                var books = new Book[10];
+
+                for (int i = 0; i < books.Length; i++)
+                {
+                    books[i] = Book.Generate();
+                    session.Insert(books[i]);
+                }
+
+                var selectManyBooks = session.SelectMany<Book>(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+
+                Assert.IsNotNull(selectManyBooks);
+                Assert.AreEqual(0, selectManyBooks.Length);
+            }
+        }
+
+        #endregion
     }
 }
