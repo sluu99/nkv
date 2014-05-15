@@ -18,6 +18,7 @@ namespace Nkv.Sql
         private static string InsertEntityTemplate;
         private static string DeleteEntityTemplate;
         private static string UpdateEntityTemplate;
+        private static string SelectManyTemplate;
 
         private static void PopulateQueryTemplates()
         {
@@ -75,6 +76,14 @@ namespace Nkv.Sql
                     }
                 }
 
+                using (var stream = assembly.GetManifestResourceStream("Nkv.Sql.Queries.SqlSelectAll.txt"))
+                {
+                    using (var reader = new StreamReader(stream))
+                    {
+                        SqlProvider.SelectManyTemplate = reader.ReadToEnd().Trim();
+                    }
+                }
+
                 SqlProvider.TemplatesPopulated = true;
             }
         }
@@ -126,7 +135,7 @@ namespace Nkv.Sql
         {
             keyParamName = "@key";
 
-            string query = "select [value], [timestamp] from dbo.[{0}] where [key] = @key";
+            string query = "select [Key], [Value], [Timestamp] from dbo.[{0}] where [Key] = @key";
             query = string.Format(query, tableName);
 
             return query;
@@ -194,7 +203,7 @@ namespace Nkv.Sql
             prefix = prefix.Replace("_", "[_]");
             prefix += "%";
 
-            string query = "select [key], [value], [timestamp] from dbo.[{0}] where [key] like @prefix";
+            string query = "select [Key], [Value], [Timestamp] from dbo.[{0}] where [Key] like @prefix";
 
             return string.Format(query, tableName);
         }
@@ -209,10 +218,16 @@ namespace Nkv.Sql
             }
 
             return string.Format(
-                "select [key], [value], [timestamp] from dbo.[{0}] where [key] in ({1})",
+                "select [Key], [Value], [Timestamp] from dbo.[{0}] where [Key] in ({1})",
                 tableName,
                 string.Join(",", keyParamNames)
             );
+        }
+
+
+        public string GetSelectAllQuery(string tableName, int skip, int take)
+        {
+            return string.Format(tableName, skip + 1, take + skip);
         }
     }
 }

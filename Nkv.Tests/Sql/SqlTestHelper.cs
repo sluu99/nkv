@@ -67,7 +67,7 @@ namespace Nkv.Tests.Sql
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = string.Format("select 1 from [{0}] where [key] = @key", tableName);
+                    cmd.CommandText = string.Format("select 1 from [{0}] where [Key] = @key", tableName);
                     cmd.Parameters.Add("@key", System.Data.SqlDbType.NVarChar, 128).Value = key;
                     using (var reader = cmd.ExecuteReader())
                     {

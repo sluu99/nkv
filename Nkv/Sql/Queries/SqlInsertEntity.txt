@@ -8,9 +8,9 @@ begin
 	declare @ackCode varchar(32);
 	declare @rowCount int;
 
-	select @timestamp = [timestamp]
+	select @timestamp = [Timestamp]
 	from dbo.[{0}]
-	where [key] = @key;
+	where [Key] = @key;
 
 	if @timestamp is not null
 	begin
@@ -21,7 +21,7 @@ begin
 	begin
 		set @timestamp = sysutcdatetime();
 	
-		insert into dbo.[{0}]([key], [value], [timestamp])
+		insert into dbo.[{0}]([Key], [Value], [Timestamp])
 		values(@key, @value, @timestamp);
 	
 		set @rowCount = @@ROWCOUNT;

@@ -9,12 +9,12 @@ begin
 	declare @rowCount int;
 	declare @ackCode varchar(32) = 'Success'
 
-	delete from dbo.[{0}] where [key] = @key and [timestamp] = @timestamp;
+	delete from dbo.[{0}] where [Key] = @key and [Timestamp] = @timestamp;
                 
 	set @rowCount = @@rowcount;
 	if @rowCount <> 1
 	begin
-		select @rowTimestamp = [timestamp] from dbo.[{0}] where [key] = @key;
+		select @rowTimestamp = [Timestamp] from dbo.[{0}] where [Key] = @key;
 		if @rowTimestamp is null
 		begin
 			set @ackCode = 'KeyNotFound';

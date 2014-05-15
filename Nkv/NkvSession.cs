@@ -4,6 +4,7 @@ using Nkv.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace Nkv
 {
@@ -70,24 +71,10 @@ namespace Nkv
             string query = Provider.GetSelectQuery(TableAttribute.GetTableName(typeof(T)), out keyParamName);
             var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, key, Entity.MaxKeySize);
 
-            T entity = null;
+            var entities = new List<T>();
 
-            Action<IDataReader> readerCallback = (reader) =>
-            {
-                if (reader.Read())
-                {
-                    int i = 0;
-                    var json = reader.GetString(i++);
-                    var timestamp = reader.GetDateTime(i++);
-
-                    entity = JsonConvert.DeserializeObject<T>(json);
-                    entity.Key = key;
-                    entity.Timestamp = timestamp;
-                }
-            };
-
-            ExecuteReader(query, readerCallback, keyParam);
-            return entity;
+            ExecuteReader(query, (r) => ReadEntitiesFromReader(r, entities), keyParam);
+            return entities.FirstOrDefault();
         }
 
         public T[] SelectPrefix<T>(string prefix) where T : Entity
@@ -104,24 +91,7 @@ namespace Nkv
 
             List<T> entities = new List<T>();
 
-            Action<IDataReader> readerCallback = (reader) =>
-            {
-                while (reader.Read())
-                {
-                    int i = 0;
-                    var key = reader.GetString(i++);
-                    var value = reader.GetString(i++);
-                    var timestamp = reader.GetDateTime(i++);
-
-                    var entity = JsonConvert.DeserializeObject<T>(value);
-                    entity.Key = key;
-                    entity.Timestamp = timestamp;
-
-                    entities.Add(entity);
-                }
-            };
-
-            ExecuteReader(query, readerCallback, prefixParam);
+            ExecuteReader(query, (r) => ReadEntitiesFromReader(r, entities), prefixParam);
 
             return entities.ToArray();
         }
@@ -140,30 +110,38 @@ namespace Nkv
             var keyParams = new IDbDataParameter[keys.Length];
             for (int i = 0; i < keys.Length; i++)
             {
+                if (string.IsNullOrWhiteSpace(keys[i]))
+                {
+                    throw new ArgumentException("One of the keys are null or white spaces");
+                }
+
                 keyParams[i] = Provider.CreateParameter(keyParamNames[i], SqlDbType.NVarChar, keys[i], Entity.MaxKeySize);
             }
             
             var entities = new List<T>();
 
-            Action<IDataReader> readerCallback = (reader) =>
+            ExecuteReader(query, (r) => ReadEntitiesFromReader(r, entities), keyParams);
+
+            return entities.ToArray();
+        }
+
+        public T[] SelectAll<T>(int skip, int take) where T : Entity
+        {
+            if (skip < 0)
             {
-                while (reader.Read())
-                {
-                    int i = 0;
+                throw new ArgumentException("Skip cannot be negative");
+            }
+            if (take < 1)
+            {
+                throw new ArgumentException("Take must be greater than zero");
+            }
 
-                    var key = reader.GetString(i++);
-                    var json = reader.GetString(i++);
-                    var timestamp = reader.GetDateTime(i++);
+            string tableName = TableAttribute.GetTableName(typeof(T));
+            string query = Provider.GetSelectAllQuery(tableName, skip, take);
+            var entities = new List<T>();
 
-                    var entity = JsonConvert.DeserializeObject<T>(json);
-                    entity.Key = key;
-                    entity.Timestamp = timestamp;
 
-                    entities.Add(entity);
-                }
-            };
-
-            ExecuteReader(query, readerCallback, keyParams);
+            ExecuteReader(query, (r) => ReadEntitiesFromReader(r, entities));
 
             return entities.ToArray();
         }
@@ -239,6 +217,24 @@ namespace Nkv
         }
 
         #region Helper methods
+
+        private void ReadEntitiesFromReader<T>(IDataReader reader, List<T> entities) where T : Entity
+        {
+            while (reader.Read())
+            {
+                int i = 0;
+
+                var key = reader.GetString(i++);
+                var json = reader.GetString(i++);
+                var timestamp = reader.GetDateTime(i++);
+
+                var entity = JsonConvert.DeserializeObject<T>(json);
+                entity.Key = key;
+                entity.Timestamp = timestamp;
+
+                entities.Add(entity);
+            }
+        }
 
         private void ValidateReaderResult(IDataReader reader, int expectedRowCount, string errorMessage, out DateTime timestamp)
         {
