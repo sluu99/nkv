@@ -18,7 +18,7 @@ namespace Nkv.Sql
         private static string InsertEntityTemplate;
         private static string DeleteEntityTemplate;
         private static string UpdateEntityTemplate;
-        private static string SelectManyTemplate;
+        private static string SelectAllTemplate;
 
         private static void PopulateQueryTemplates()
         {
@@ -80,7 +80,7 @@ namespace Nkv.Sql
                 {
                     using (var reader = new StreamReader(stream))
                     {
-                        SqlProvider.SelectManyTemplate = reader.ReadToEnd().Trim();
+                        SqlProvider.SelectAllTemplate = reader.ReadToEnd().Trim();
                     }
                 }
 
@@ -227,7 +227,7 @@ namespace Nkv.Sql
 
         public string GetSelectAllQuery(string tableName, int skip, int take)
         {
-            return string.Format(tableName, skip + 1, take + skip);
+            return string.Format(SqlProvider.SelectAllTemplate, tableName, skip + 1, take + skip);
         }
     }
 }

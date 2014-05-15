@@ -3,6 +3,7 @@ using Nkv.Tests.Fixtures;
 using System;
 using System.Transactions;
 using System.Linq;
+using Nkv.Attributes;
 
 namespace Nkv.Tests
 {
@@ -75,11 +76,11 @@ namespace Nkv.Tests
                 session.CreateTable<BlogEntry>();
 
                 var book = Book.Generate();
-                var blogEntry = BlogEntry.Generate();                
+                var blogEntry = BlogEntry.Generate();
 
                 session.Insert(book);
                 session.Insert(blogEntry);
-                
+
                 Assert.IsNotNull(session.Select<Book>(book.Key));
                 Assert.IsNotNull(session.Select<BlogEntry>(blogEntry.Key));
                 Assert.IsNull(session.Select<Book>(blogEntry.Key));
@@ -277,6 +278,68 @@ namespace Nkv.Tests
 
                 Assert.IsNotNull(selectManyBooks);
                 Assert.AreEqual(0, selectManyBooks.Length);
+            }
+        }
+
+        #endregion
+
+        #region SelectAll
+
+        [Table("SelectAllTest")]
+        private class SelectAllTestFixture : Entity
+        {
+            public SelectAllTestFixture()
+            {
+                Key = Guid.NewGuid().ToString();
+            }
+        }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestSelectAll()
+        {
+            var nkv = TestConfiguration.CreateNkv(TestContext);
+
+            var fixtures = new SelectAllTestFixture[10];
+            for (int i = 0; i < fixtures.Length; i++)
+            {
+                fixtures[i] = new SelectAllTestFixture();
+                fixtures[i].Key = i.ToString();
+            }
+
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<SelectAllTestFixture>();
+
+                var entities = session.SelectAll<SelectAllTestFixture>(0, int.MaxValue);
+                Assert.IsNotNull(entities);
+                Assert.AreEqual(0, entities.Length);
+
+                session.Insert(fixtures[0]);
+
+                entities = session.SelectAll<SelectAllTestFixture>(0, int.MaxValue);
+                Assert.AreEqual(1, entities.Length);
+
+                entities = session.SelectAll<SelectAllTestFixture>(1, int.MaxValue);
+                Assert.IsNotNull(entities);
+                Assert.AreEqual(0, entities.Length);
+
+                for (int i = 1; i < fixtures.Length; i++)
+                {
+                    session.Insert(fixtures[i]);
+                }
+
+                entities = session.SelectAll<SelectAllTestFixture>(0, 5);
+                Assert.AreEqual(5, entities.Length);
+                Assert.AreEqual(5, entities.Count(x => int.Parse(x.Key) >= 0 && int.Parse(x.Key) <= 4));
+
+                entities = session.SelectAll<SelectAllTestFixture>(3, 2);
+                Assert.AreEqual(2, entities.Length);
+                Assert.AreEqual(2, entities.Count(x => int.Parse(x.Key) >= 3 && int.Parse(x.Key) <= 4));
+
+                entities = session.SelectAll<SelectAllTestFixture>(7, 4);
+                Assert.AreEqual(3, entities.Length);
+                Assert.AreEqual(3, entities.Count(x => int.Parse(x.Key) >= 7 && int.Parse(x.Key) <= 9));
             }
         }
 
