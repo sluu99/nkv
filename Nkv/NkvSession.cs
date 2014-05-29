@@ -125,7 +125,7 @@ namespace Nkv
             return entities.ToArray();
         }
 
-        public T[] SelectAll<T>(int skip, int take) where T : Entity
+        public T[] SelectAll<T>(long skip, int take) where T : Entity
         {
             if (skip < 0)
             {

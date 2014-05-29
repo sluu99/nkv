@@ -8,7 +8,7 @@ namespace Nkv.Interfaces
         T Select<T>(string key) where T : Entity;
         T[] SelectPrefix<T>(string prefix) where T : Entity;
         T[] SelectMany<T>(params string[] keys) where T : Entity;
-        T[] SelectAll<T>(int skip, int take) where T : Entity;
+        T[] SelectAll<T>(long skip, int take) where T : Entity;
         void Insert<T>(T entity) where T : Entity;
         void Update<T>(T entity) where T : Entity;
         void Delete<T>(T entity) where T : Entity;

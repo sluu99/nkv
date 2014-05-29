@@ -23,7 +23,7 @@ namespace Nkv.Interfaces
 
         string GetSelectManyQuery(string tableName, int keyCount, out string[] keyParamNames);
 
-        string GetSelectAllQuery(string tableName, int skip, int take);
+        string GetSelectAllQuery(string tableName, long skip, int take);
 
         string GetDeleteQuery(string tableName, out string keyParamName, out string timestampParamName);
 

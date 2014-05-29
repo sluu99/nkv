@@ -225,7 +225,7 @@ namespace Nkv.Sql
         }
 
 
-        public string GetSelectAllQuery(string tableName, int skip, int take)
+        public string GetSelectAllQuery(string tableName, long skip, int take)
         {
             return string.Format(SqlProvider.SelectAllTemplate, tableName, skip + 1, take + skip);
         }
