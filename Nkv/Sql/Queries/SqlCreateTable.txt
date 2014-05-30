@@ -1,7 +1,8 @@
 ﻿if not exists (select 1 from sys.tables where name = '{0}')
 begin
-    create table dbo.[{0}] (
+    create table [{0}] (
         [Key] nvarchar(128) collate SQL_Latin1_General_CP1_CS_AS primary key not null, 
         [Value] nvarchar(max), 
+		[LockTimestamp] datetime null,
         [Timestamp] datetime not null)
 end

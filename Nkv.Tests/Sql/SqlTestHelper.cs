@@ -103,7 +103,7 @@ namespace Nkv.Tests.Sql
         public void DropDatabase()
         {
             string query =
-                @"if exists (select 1 from master.dbo.sysdatabases where name = '{0}') 
+                @"if exists (select 1 from dbo.sysdatabases where name = '{0}') 
                 begin
                     alter database [{0}] set single_user with rollback immediate
                     drop database [{0}]

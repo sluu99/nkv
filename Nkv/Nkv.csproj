@@ -55,6 +55,7 @@
     <Compile Include="NkvException.cs" />
     <Compile Include="NkvSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Sql\Queries\SqlSetLockTimestamp.txt" />
     <Compile Include="Sql\SqlProvider.cs" />
   </ItemGroup>
   <ItemGroup>

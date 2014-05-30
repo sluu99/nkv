@@ -1,0 +1,36 @@
+﻿alter procedure nkv_Set{0}LockTimestamp
+(
+    @key varchar(128),       
+    @timestamp datetime,
+    @lockTimestamp datetime = null
+) as
+begin
+    declare @outputTable table ([RowTimestamp] datetime);
+    declare @rowTimestamp datetime = null;
+    declare @rowCount int = 0;
+    declare @ackCode varchar(32);
+
+    update [{0}] set 
+        [LockTimestamp] = @lockTimestamp,
+        [Timestamp] = sysutcdatetime()
+    output inserted.[Timestamp] into @outputTable
+    where [Key] = @key and [Timestamp] = @timestamp;
+
+    set @ackCode = 'Success';
+
+    select @rowCount = count(1) from @outputTable;
+    select top 1 @rowTimestamp = [RowTimestamp] from @outputTable;
+
+    if @rowCount <> 1
+    begin
+        set @rowTimestamp = null;
+        select @rowTimestamp = [Timestamp] from [{0}] where [Key] = @key;
+
+        set @ackCode =
+        case
+            when @rowTimestamp is null then 'KeyNotFound'
+            when @timestamp <> @rowTimestamp then 'TimestampMismatch'
+            else 'Unknown'
+        end;
+    end
+end
