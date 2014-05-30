@@ -1,35 +1,27 @@
-﻿alter procedure dbo.nkv_Delete{0}Entity
+﻿alter procedure nkv_Delete{0}Entity
 (
 	@key nvarchar(128),
-	@timestamp datetime
+	@timestamp datetime,
+	@ignoreLock tinyint = 0
 )
 as
-begin
+begin	
 	declare @rowTimestamp datetime;
 	declare @rowCount int;
 	declare @ackCode varchar(32) = 'Success'
 
-	delete from dbo.[{0}] where [Key] = @key and [Timestamp] = @timestamp;
+	delete from [{0}] where [Key] = @key and [Timestamp] = @timestamp;
                 
 	set @rowCount = @@rowcount;
 	if @rowCount <> 1
 	begin
-		select @rowTimestamp = [Timestamp] from dbo.[{0}] where [Key] = @key;
-		if @rowTimestamp is null
-		begin
-			set @ackCode = 'KeyNotFound';
-		end
-		else
-		begin
-			if @rowTimestamp <> @timestamp
-			begin
-				set @ackCode = 'TimestampMismatch';            
-			end
-			else
-			begin
-				set @ackCode = 'Unknown';
-			end
-		end
+		select @rowTimestamp = [Timestamp] from [{0}] where [Key] = @key;
+		set @ackCode =
+		case
+			when @rowTimestamp is null then 'KeyNotFound'
+			when @rowTimestamp <> @timestamp then 'TimestampMismatch'
+			else 'Unknown'
+		end;
 	end
 
 	select @rowCount [RowCount], @rowTimestamp [Timestamp], @ackCode [AckCode]

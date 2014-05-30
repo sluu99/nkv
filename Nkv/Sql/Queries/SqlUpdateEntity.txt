@@ -1,42 +1,38 @@
-﻿alter procedure dbo.nkv_Update{0}Entity
+﻿alter procedure nkv_Update{0}Entity
 (
 	@key nvarchar(128),
 	@value nvarchar(max),
-	@oldTimestamp datetime
+	@timestamp datetime
 ) as
 begin
-	declare @rowTimestamp datetime = sysutcdatetime();
+	declare @outputTable table ([RowTimestamp] datetime);
+	declare @rowTimestamp datetime = null;
 	declare @rowCount int = 0;
 	declare @ackCode varchar(32);
 
-	update dbo.[{0}] set
+	update [{0}] set
 		[Value] = @value,
-		[Timestamp] = @rowTimestamp
-	where [Key] = @key and [Timestamp] = @oldTimestamp;
-
-	set @rowCount = @@ROWCOUNT;
+		[Timestamp] = sysutcdatetime()
+	output
+		inserted.[Timestamp] into @outputTable
+	where [Key] = @key and [Timestamp] = @timestamp;
+		
 	set @ackCode = 'Success';
+
+	select @rowCount = count(1) from @outputTable;
+	select top 1 @rowTimestamp = [RowTimestamp] from @outputTable;
 
 	if @rowCount <> 1
 	begin
 		set @rowTimestamp = null;
-		select @rowTimestamp = [Timestamp] from dbo.[{0}] where [Key] = @key;
+		select @rowTimestamp = [Timestamp] from [{0}] where [Key] = @key;
 	
-		if @rowTimestamp is null
-		begin
-			set @ackCode = 'KeyNotFound';
-		end
-		else
-		begin
-			if @oldTimestamp <> @rowTimestamp
-			begin
-				set @ackCode = 'TimestampMismatch';
-			end
-			else
-			begin
-				set @ackCode = 'Unknown';
-			end
-		end
+		select @ackCode = 
+		case
+			when @rowTimestamp is null then 'KeyNotFound'
+			when @timestamp <> @rowTimestamp then 'TimestampMismatch'
+			else 'Unknown'
+		end;
 	end
 
 	select @rowCount [RowCount], @rowTimestamp [Timestamp], @ackCode [AckCode];

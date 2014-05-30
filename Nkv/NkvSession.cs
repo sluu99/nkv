@@ -216,6 +216,16 @@ namespace Nkv
             ExecuteReader(query, readerCallback, keyParam, timestampParam);
         }
 
+        public void Lock<T>(T entity) where T : Entity
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Unlock<T>(T entity) where T : Entity
+        {
+            throw new NotImplementedException();
+        }
+
         #region Helper methods
 
         private void ReadEntitiesFromReader<T>(IDataReader reader, List<T> entities) where T : Entity

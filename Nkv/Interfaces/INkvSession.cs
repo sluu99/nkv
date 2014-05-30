@@ -12,6 +12,8 @@ namespace Nkv.Interfaces
         void Insert<T>(T entity) where T : Entity;
         void Update<T>(T entity) where T : Entity;
         void Delete<T>(T entity) where T : Entity;
+        void Lock<T>(T entity) where T : Entity;
+        void Unlock<T>(T entity) where T : Entity;
         long Count<T>() where T : Entity;
     }
 }
