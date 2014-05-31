@@ -218,12 +218,43 @@ namespace Nkv
 
         public void Lock<T>(T entity) where T : Entity
         {
-            throw new NotImplementedException();
+            InternalLockEntity(entity, true);
         }
 
         public void Unlock<T>(T entity) where T : Entity
         {
-            throw new NotImplementedException();
+            InternalLockEntity(entity, false);
+        }
+
+
+        private void InternalLockEntity<T>(T entity, bool isLock) where T: Entity
+        {
+            ValidateEntity(entity);
+
+            string tableName = TableAttribute.GetTableName(typeof(T));
+            string keyParamName;
+            string timestampParamName;
+            string query = isLock ?
+                Provider.GetLockQuery(tableName, out keyParamName, out timestampParamName) :
+                Provider.GetUnlockQuery(tableName, out keyParamName, out timestampParamName);
+
+            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, Entity.MaxKeySize);
+            var timestampParam = Provider.CreateParameter(timestampParamName, SqlDbType.DateTime, entity.Timestamp);
+
+            Action<IDataReader> readerCallback = (reader) =>
+            {
+                DateTime timestamp;
+                ValidateReaderResult(
+                    reader,
+                    1,
+                    string.Format("Error {0}locking {1} entity with key={2}", isLock ? "" : "un", tableName, entity.Key),
+                    out timestamp
+                );
+
+                entity.Timestamp = timestamp;
+            };
+
+            ExecuteReader(query, readerCallback, keyParam, timestampParam);
         }
 
         #region Helper methods

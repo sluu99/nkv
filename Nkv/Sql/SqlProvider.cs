@@ -19,6 +19,7 @@ namespace Nkv.Sql
         private static string DeleteEntityTemplate;
         private static string UpdateEntityTemplate;
         private static string SelectAllTemplate;
+        private static string SetLockTimestampTemplate;
 
         private static void PopulateQueryTemplates()
         {
@@ -81,6 +82,14 @@ namespace Nkv.Sql
                     using (var reader = new StreamReader(stream))
                     {
                         SqlProvider.SelectAllTemplate = reader.ReadToEnd().Trim();
+                    }
+                }
+
+                using (var stream = assembly.GetManifestResourceStream("Nkv.Sql.Queries.SqlSetLockTimestamp.txt"))
+                {
+                    using (var reader = new StreamReader(stream))
+                    {
+                        SqlProvider.SetLockTimestampTemplate = reader.ReadToEnd().Trim();
                     }
                 }
 
@@ -151,6 +160,7 @@ namespace Nkv.Sql
                 string.Format(SqlProvider.InsertEntityTemplate, tableName),
                 string.Format(SqlProvider.DeleteEntityTemplate, tableName),
                 string.Format(SqlProvider.UpdateEntityTemplate, tableName),
+                string.Format(SqlProvider.SetLockTimestampTemplate, tableName)
             };
         }
 
@@ -228,6 +238,27 @@ namespace Nkv.Sql
         public string GetSelectAllQuery(string tableName, long skip, int take)
         {
             return string.Format(SqlProvider.SelectAllTemplate, tableName, skip + 1, take + skip);
+        }
+
+
+        public string GetLockQuery(string tableName, out string keyParamName, out string timestampParamName)
+        {
+            keyParamName = "@keyInput";
+            timestampParamName = "@timestampInput";
+
+            string query = "exec [nkv_Set{0}LockTimestamp] @key=@keyInput, @timestamp=@timestampInput @lockTimestamp=sysutcdatetime()";
+
+            return string.Format(query, tableName);
+        }
+
+        public string GetUnlockQuery(string tableName, out string keyParamName, out string timestampParamName)
+        {
+            keyParamName = "@keyInput";
+            timestampParamName = "@timestampInput";
+
+            string query = "exec [nkv_Set{0}LockTimestamp] @key=@keyInput, @timestamp=@timestampInput @lockTimestamp=null";
+
+            return string.Format(query, tableName);
         }
     }
 }

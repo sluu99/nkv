@@ -33,6 +33,10 @@ namespace Nkv.Interfaces
 
         string GetCountQuery(string tableName);
 
+        string GetLockQuery(string tableName, out string keyParamName, out string timestampParamName);
+
+        string GetUnlockQuery(string tableName, out string keyParamName, out string timestampParamName);
+
         IDbDataParameter CreateParameter(string name, SqlDbType type, object value, int size = 0);
     }
 }
