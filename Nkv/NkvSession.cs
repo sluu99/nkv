@@ -287,10 +287,12 @@ namespace Nkv
                 var key = reader.GetString(i++);
                 var json = reader.GetString(i++);
                 var timestamp = reader.GetDateTime(i++);
+                var version = reader.GetInt64(i++);
 
                 var entity = JsonConvert.DeserializeObject<T>(json);
                 entity.Key = key;
                 entity.Timestamp = timestamp;
+                entity.Version = version;
 
                 entities.Add(entity);
             }

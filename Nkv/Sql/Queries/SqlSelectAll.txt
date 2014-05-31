@@ -1,4 +1,4 @@
 ﻿;with t0 as (select row_number() over (order by [Key]) RowNumber, [Key] from [{0}])
-select t1.[Key], t1.[Value], t1.[Timestamp]
+select t1.[Key], t1.[Value], t1.[Timestamp], t1.[Version]
 from [{0}] t1 inner join t0 on t1.[Key] = t0.[Key]
 where t0.RowNumber between {1} and {2}

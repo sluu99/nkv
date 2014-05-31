@@ -38,6 +38,8 @@ namespace Nkv.Tests
                 Assert.AreEqual(book.Pages, book2.Pages);
                 Assert.AreEqual(book.ReleaseDate, book2.ReleaseDate);
                 Assert.AreEqual(book.Abstract, book2.Abstract);
+
+                Assert.AreNotEqual(0, book2.Version);
             }
         }
 
@@ -119,6 +121,7 @@ namespace Nkv.Tests
                 entities = session.SelectPrefix<Book>(book.Key + "_");
                 Assert.IsNotNull(entities);
                 Assert.AreEqual(10, entities.Length);
+                Assert.AreEqual(0, entities.Count(x => x.Version < 1));
             }
         }
 
@@ -228,6 +231,8 @@ namespace Nkv.Tests
 
                 Assert.IsNotNull(selectManyBooks);
                 Assert.AreEqual(5, selectManyBooks.Length);
+
+                Assert.AreEqual(0, selectManyBooks.Count(x => x.Version < 1));
             }
         }
 
@@ -332,14 +337,17 @@ namespace Nkv.Tests
                 entities = session.SelectAll<SelectAllTestFixture>(0, 5);
                 Assert.AreEqual(5, entities.Length);
                 Assert.AreEqual(5, entities.Count(x => int.Parse(x.Key) >= 0 && int.Parse(x.Key) <= 4));
+                Assert.AreEqual(0, entities.Count(x => x.Version < 1));
 
                 entities = session.SelectAll<SelectAllTestFixture>(3, 2);
                 Assert.AreEqual(2, entities.Length);
                 Assert.AreEqual(2, entities.Count(x => int.Parse(x.Key) >= 3 && int.Parse(x.Key) <= 4));
+                Assert.AreEqual(0, entities.Count(x => x.Version < 1));
 
                 entities = session.SelectAll<SelectAllTestFixture>(7, 4);
                 Assert.AreEqual(3, entities.Length);
                 Assert.AreEqual(3, entities.Count(x => int.Parse(x.Key) >= 7 && int.Parse(x.Key) <= 9));
+                Assert.AreEqual(0, entities.Count(x => x.Version < 1));
             }
         }
 

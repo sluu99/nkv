@@ -144,7 +144,7 @@ namespace Nkv.Sql
         {
             keyParamName = "@key";
 
-            string query = "select [Key], [Value], [Timestamp] from [{0}] where [Key] = @key";
+            string query = "select [Key], [Value], [Timestamp], [Version] from [{0}] where [Key] = @key";
             query = string.Format(query, tableName);
 
             return query;
@@ -218,7 +218,7 @@ namespace Nkv.Sql
             prefix = prefix.Replace("_", "[_]");
             prefix += "%";
 
-            string query = "select [Key], [Value], [Timestamp] from [{0}] where [Key] like @prefix";
+            string query = "select [Key], [Value], [Timestamp], [Version] from [{0}] where [Key] like @prefix";
 
             return string.Format(query, tableName);
         }
@@ -233,7 +233,7 @@ namespace Nkv.Sql
             }
 
             return string.Format(
-                "select [Key], [Value], [Timestamp] from [{0}] where [Key] in ({1})",
+                "select [Key], [Value], [Timestamp], [Version] from [{0}] where [Key] in ({1})",
                 tableName,
                 string.Join(",", keyParamNames)
             );
