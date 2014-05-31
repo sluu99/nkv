@@ -2,9 +2,9 @@ services:
   - mssql2012sp1
 
 environment:
-  NTicket_Tests_SqlConnectionString: Server=(local)\SQL2012SP1;Database=master;User ID=sa;Password=Password12!
-  NTicket_Tests_SqlDatabase: master
-  NTicket_Tests_SqlMasterConnectionString: Server=(local)\SQL2012SP1;Database=master;User ID=sa;Password=Password12!
+  Nkv_Tests_SqlConnectionString: Server=(local)\SQL2012SP1;Database=master;User ID=sa;Password=Password12!
+  Nkv_Tests_SqlDatabase: master
+  Nkv_Tests_SqlMasterConnectionString: Server=(local)\SQL2012SP1;Database=master;User ID=sa;Password=Password12!
 
 assembly_info:
   patch: true
@@ -15,3 +15,5 @@ assembly_info:
 
 before_build:
   - nuget restore
+
+configuration: Release
