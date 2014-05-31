@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nkv.Tests.Fixtures;
+using System.Threading;
 
 namespace Nkv.Tests
 {
@@ -86,6 +87,8 @@ namespace Nkv.Tests
             {
                 session.CreateTable<Book>();
                 session.Insert(book);
+
+                Thread.Sleep(500);
 
                 var book2 = session.Select<Book>(book.Key);
                 book.Pages++;
