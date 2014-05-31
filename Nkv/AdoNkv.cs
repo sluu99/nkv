@@ -3,11 +3,11 @@ using System;
 
 namespace Nkv
 {
-    public class Nkv : INkv
+    public class AdoNkv : INkv
     {
-        private IProvider Provider { get; set; }
+        private IAdoProvider Provider { get; set; }
 
-        public Nkv(IProvider provider)
+        public AdoNkv(IAdoProvider provider)
         {
             if (provider == null)
             {
@@ -19,7 +19,7 @@ namespace Nkv
 
         public INkvSession BeginSession()
         {
-            return new NkvSession(Provider);
+            return new AdoNkvSession(Provider);
         }
     }
 }

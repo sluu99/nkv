@@ -27,7 +27,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestCount()
         {
-            Nkv nkv;
+            AdoNkv nkv;
             ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 

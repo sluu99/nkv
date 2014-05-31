@@ -47,16 +47,16 @@
   <ItemGroup>
     <Compile Include="Attributes\TableAttribute.cs" />
     <Compile Include="Entity.cs" />
-    <Compile Include="Interfaces\INkv.cs" />
-    <Compile Include="Interfaces\INkvSession.cs" />
-    <Compile Include="Interfaces\IProvider.cs" />
-    <Compile Include="Nkv.cs" />
+    <Compile Include="INkv.cs" />
+    <Compile Include="INkvSession.cs" />
+    <Compile Include="Interfaces\IAdoProvider.cs" />
+    <Compile Include="AdoNkv.cs" />
     <Compile Include="NkvAckCode.cs" />
     <Compile Include="NkvException.cs" />
-    <Compile Include="NkvSession.cs" />
+    <Compile Include="AdoNkvSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Sql\Queries\SqlSetLockTimestamp.txt" />
-    <Compile Include="Sql\SqlProvider.cs" />
+    <Compile Include="Sql\SqlAdoProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

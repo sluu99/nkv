@@ -38,7 +38,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestUpdate_entity_modified()
         {
-            Nkv nkv;
+            AdoNkv nkv;
             ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
@@ -71,7 +71,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestUpdate_entity_not_exists()
         {
-            Nkv nkv;
+            AdoNkv nkv;
             ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 

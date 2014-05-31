@@ -2,7 +2,7 @@
 
 namespace Nkv.Interfaces
 {
-    public interface IProvider
+    public interface IAdoProvider
     {
         /// <summary>
         /// Provide a connection that can be disposed once the operation is over

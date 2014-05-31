@@ -14,7 +14,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestDelete()
         {
-            Nkv nkv;
+            AdoNkv nkv;
             ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
@@ -37,7 +37,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestDelete_modified_entity()
         {
-            Nkv nkv;
+            AdoNkv nkv;
             ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
@@ -70,7 +70,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestDelete_non_existent()
         {
-            Nkv nkv;
+            AdoNkv nkv;
             ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
@@ -102,7 +102,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestDelete_entity_locked()
         {
-            Nkv nkv;
+            AdoNkv nkv;
             ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
@@ -139,7 +139,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestForceDelete()
         {
-            Nkv nkv;
+            AdoNkv nkv;
             ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
@@ -179,7 +179,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestForceDelete_modified_entity()
         {
-            Nkv nkv;
+            AdoNkv nkv;
             ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 

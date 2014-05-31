@@ -8,9 +8,9 @@ using System.Linq;
 
 namespace Nkv
 {
-    public class NkvSession : INkvSession
+    public class AdoNkvSession : INkvSession
     {
-        internal NkvSession(IProvider provider)
+        internal AdoNkvSession(IAdoProvider provider)
         {
             if (provider == null)
             {
@@ -27,7 +27,7 @@ namespace Nkv
         }
 
         private IDbConnection Connection { get; set; }
-        private IProvider Provider { get; set; }
+        private IAdoProvider Provider { get; set; }
 
         public void CreateTable<T>() where T : Entity
         {

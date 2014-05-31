@@ -1,4 +1,4 @@
-﻿namespace Nkv.Interfaces
+﻿namespace Nkv
 {
     public interface INkv
     {

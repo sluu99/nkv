@@ -29,10 +29,10 @@ namespace Nkv.Tests.Sql
         }
 
 
-        private SqlProvider _connectionProviderField;
+        private SqlAdoProvider _connectionProviderField;
         private object _padLock = new object();
 
-        public SqlProvider ConnectionProvider
+        public SqlAdoProvider ConnectionProvider
         {
             get
             {
@@ -42,7 +42,7 @@ namespace Nkv.Tests.Sql
                     {
                         if (_connectionProviderField == null)
                         {
-                            _connectionProviderField = new SqlProvider(SqlConnectionString);
+                            _connectionProviderField = new SqlAdoProvider(SqlConnectionString);
                         }
                     }
                 }

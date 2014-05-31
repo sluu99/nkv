@@ -18,7 +18,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestSelect()
         {
-            Nkv nkv;
+            AdoNkv nkv;
             ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
@@ -47,7 +47,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestSelect_not_exists()
         {
-            Nkv nkv;
+            AdoNkv nkv;
             ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
@@ -69,7 +69,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestSelect_keys_on_different_tables()
         {
-            Nkv nkv;
+            AdoNkv nkv;
             ITestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
             using (var session = nkv.BeginSession())
@@ -98,7 +98,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestSelectPrefix()
         {
-            Nkv nkv = TestConfiguration.CreateNkv(TestContext);
+            AdoNkv nkv = TestConfiguration.CreateNkv(TestContext);
 
             using (var session = nkv.BeginSession())
             {
@@ -129,7 +129,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestSelectPrefix_not_exists()
         {
-            Nkv nkv = TestConfiguration.CreateNkv(TestContext);
+            AdoNkv nkv = TestConfiguration.CreateNkv(TestContext);
 
             using (var session = nkv.BeginSession())
             {
@@ -155,7 +155,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestSelectPrefix_wildcard_prefix()
         {
-            Nkv nkv = TestConfiguration.CreateNkv(TestContext);
+            AdoNkv nkv = TestConfiguration.CreateNkv(TestContext);
 
             using (var session = nkv.BeginSession())
             {
@@ -182,7 +182,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestSelectPrefix_wildcard_suffix()
         {
-            Nkv nkv = TestConfiguration.CreateNkv(TestContext);
+            AdoNkv nkv = TestConfiguration.CreateNkv(TestContext);
 
             using (var session = nkv.BeginSession())
             {
@@ -213,7 +213,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestSelectMany()
         {
-            Nkv nkv = TestConfiguration.CreateNkv(TestContext);
+            AdoNkv nkv = TestConfiguration.CreateNkv(TestContext);
 
             using (var session = nkv.BeginSession())
             {
@@ -240,7 +240,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestSelectMany_partial_exists()
         {
-            Nkv nkv = TestConfiguration.CreateNkv(TestContext);
+            AdoNkv nkv = TestConfiguration.CreateNkv(TestContext);
 
             using (var session = nkv.BeginSession())
             {
@@ -265,7 +265,7 @@ namespace Nkv.Tests
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestSelectMany_none_exists()
         {
-            Nkv nkv = TestConfiguration.CreateNkv(TestContext);
+            AdoNkv nkv = TestConfiguration.CreateNkv(TestContext);
 
             using (var session = nkv.BeginSession())
             {

@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Nkv.Sql
 {
-    public class SqlProvider : IProvider
+    public class SqlAdoProvider : IAdoProvider
     {
         #region Static
 
@@ -23,14 +23,14 @@ namespace Nkv.Sql
 
         private static void PopulateQueryTemplates()
         {
-            if (SqlProvider.TemplatesPopulated)
+            if (SqlAdoProvider.TemplatesPopulated)
             {
                 return;
             }
 
-            lock (SqlProvider.PopulateTemplatePadLock)
+            lock (SqlAdoProvider.PopulateTemplatePadLock)
             {
-                if (SqlProvider.TemplatesPopulated)
+                if (SqlAdoProvider.TemplatesPopulated)
                 {
                     return;
                 }
@@ -41,7 +41,7 @@ namespace Nkv.Sql
                 {
                     using (var reader = new StreamReader(stream))
                     {
-                        SqlProvider.CreateTableTemplate = reader.ReadToEnd().Trim();
+                        SqlAdoProvider.CreateTableTemplate = reader.ReadToEnd().Trim();
                     }
                 }
 
@@ -49,7 +49,7 @@ namespace Nkv.Sql
                 {
                     using (var reader = new StreamReader(stream))
                     {
-                        SqlProvider.CreateStoredProcsTemplate = reader.ReadToEnd().Trim();
+                        SqlAdoProvider.CreateStoredProcsTemplate = reader.ReadToEnd().Trim();
                     }
                 }
 
@@ -57,7 +57,7 @@ namespace Nkv.Sql
                 {
                     using (var reader = new StreamReader(stream))
                     {
-                        SqlProvider.InsertEntityTemplate = reader.ReadToEnd().Trim();
+                        SqlAdoProvider.InsertEntityTemplate = reader.ReadToEnd().Trim();
                     }
                 }
 
@@ -65,7 +65,7 @@ namespace Nkv.Sql
                 {
                     using (var reader = new StreamReader(stream))
                     {
-                        SqlProvider.DeleteEntityTemplate = reader.ReadToEnd().Trim();
+                        SqlAdoProvider.DeleteEntityTemplate = reader.ReadToEnd().Trim();
                     }
                 }
 
@@ -73,7 +73,7 @@ namespace Nkv.Sql
                 {
                     using (var reader = new StreamReader(stream))
                     {
-                        SqlProvider.UpdateEntityTemplate = reader.ReadToEnd().Trim();
+                        SqlAdoProvider.UpdateEntityTemplate = reader.ReadToEnd().Trim();
                     }
                 }
 
@@ -81,7 +81,7 @@ namespace Nkv.Sql
                 {
                     using (var reader = new StreamReader(stream))
                     {
-                        SqlProvider.SelectAllTemplate = reader.ReadToEnd().Trim();
+                        SqlAdoProvider.SelectAllTemplate = reader.ReadToEnd().Trim();
                     }
                 }
 
@@ -89,11 +89,11 @@ namespace Nkv.Sql
                 {
                     using (var reader = new StreamReader(stream))
                     {
-                        SqlProvider.SetLockTimestampTemplate = reader.ReadToEnd().Trim();
+                        SqlAdoProvider.SetLockTimestampTemplate = reader.ReadToEnd().Trim();
                     }
                 }
 
-                SqlProvider.TemplatesPopulated = true;
+                SqlAdoProvider.TemplatesPopulated = true;
             }
         }
 
@@ -101,9 +101,9 @@ namespace Nkv.Sql
 
         private string _connectionString;
 
-        public SqlProvider(string connectionString)
+        public SqlAdoProvider(string connectionString)
         {
-            SqlProvider.PopulateQueryTemplates();
+            SqlAdoProvider.PopulateQueryTemplates();
 
             if (string.IsNullOrWhiteSpace(connectionString))
             {
@@ -155,12 +155,12 @@ namespace Nkv.Sql
         {
             return new string[]
             {
-                string.Format(SqlProvider.CreateTableTemplate, tableName),
-                string.Format(SqlProvider.CreateStoredProcsTemplate, tableName),
-                string.Format(SqlProvider.InsertEntityTemplate, tableName),
-                string.Format(SqlProvider.DeleteEntityTemplate, tableName),
-                string.Format(SqlProvider.UpdateEntityTemplate, tableName),
-                string.Format(SqlProvider.SetLockTimestampTemplate, tableName)
+                string.Format(SqlAdoProvider.CreateTableTemplate, tableName),
+                string.Format(SqlAdoProvider.CreateStoredProcsTemplate, tableName),
+                string.Format(SqlAdoProvider.InsertEntityTemplate, tableName),
+                string.Format(SqlAdoProvider.DeleteEntityTemplate, tableName),
+                string.Format(SqlAdoProvider.UpdateEntityTemplate, tableName),
+                string.Format(SqlAdoProvider.SetLockTimestampTemplate, tableName)
             };
         }
 
@@ -242,7 +242,7 @@ namespace Nkv.Sql
 
         public string GetSelectAllQuery(string tableName, long skip, int take)
         {
-            return string.Format(SqlProvider.SelectAllTemplate, tableName, skip + 1, take + skip);
+            return string.Format(SqlAdoProvider.SelectAllTemplate, tableName, skip + 1, take + skip);
         }
 
 

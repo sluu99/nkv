@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Nkv.Interfaces
+namespace Nkv
 {
     public interface INkvSession : IDisposable
     {
