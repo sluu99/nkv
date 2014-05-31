@@ -61,7 +61,7 @@ namespace Nkv.Tests
                 try
                 {
                     session.Update(book);
-                    Assert.Fail("Expecting an instance of NkvException thrown with AckCode=TIMESTAMP_MISMATCH");
+                    Assert.Fail("Expecting an instance of NkvException thrown with AckCode=TimestampMismatch");
                 }
                 catch (NkvException ex)
                 {
@@ -87,12 +87,45 @@ namespace Nkv.Tests
                 try
                 {
                     session.Update(book);
-                    Assert.Fail("Expecting an instance of NkvException thrown with AckCode=NOT_EXISTS");
+                    Assert.Fail("Expecting an instance of NkvException thrown with AckCode=KeyNotFound");
                 }
                 catch (NkvException ex)
                 {
                     Assert.AreEqual(NkvAckCode.KeyNotFound, ex.AckCode);
                 }
+            }
+        }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestUpdate_entity_locked()
+        {
+            var nkv = TestConfiguration.CreateNkv(TestContext);
+
+            var book = Book.Generate();
+
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+                session.Insert(book);
+                session.Lock(book);
+
+                book.Pages++;
+
+                try
+                {
+                    session.Update(book);
+                    Assert.Fail("Expecting an NkvException with AckCode=EntityLocked");
+                }
+                catch (NkvException ex)
+                {
+                    Assert.AreEqual(NkvAckCode.EntityLocked, ex.AckCode);
+                }
+
+                Assert.AreEqual(book.Pages - 1, session.Select<Book>(book.Key).Pages); // make sure the value did not change
+
+                session.Unlock(book);
+                session.Update(book);
             }
         }
     }

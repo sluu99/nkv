@@ -7,19 +7,21 @@
 as
 begin	
 	declare @rowTimestamp datetime;
+	declare @lockTimestamp datetime;
 	declare @rowCount int;
 	declare @ackCode varchar(32) = 'Success'
 
-	delete from [{0}] where [Key] = @key and [Timestamp] = @timestamp;
+	delete from [{0}] where [Key] = @key and [Timestamp] = @timestamp and (@ignoreLock = 1 or [LockTimestamp] is null);
                 
 	set @rowCount = @@rowcount;
 	if @rowCount <> 1
 	begin
-		select @rowTimestamp = [Timestamp] from [{0}] where [Key] = @key;
+		select @rowTimestamp = [Timestamp], @lockTimestamp = [LockTimestamp] from [{0}] where [Key] = @key;
 		set @ackCode =
 		case
 			when @rowTimestamp is null then 'KeyNotFound'
 			when @rowTimestamp <> @timestamp then 'TimestampMismatch'
+			when @lockTimestamp is not null then 'EntityLocked'
 			else 'Unknown'
 		end;
 	end

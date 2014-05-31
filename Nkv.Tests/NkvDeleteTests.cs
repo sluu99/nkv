@@ -66,8 +66,6 @@ namespace Nkv.Tests
             }
         }
 
-
-
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
         public void TestDelete_non_existent()
@@ -97,6 +95,43 @@ namespace Nkv.Tests
                 {
                     Assert.AreEqual(NkvAckCode.KeyNotFound, ex.AckCode);
                 }
+            }
+        }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestDelete_entity_locked()
+        {
+            Nkv nkv;
+            ITestHelper helper;
+            TestConfiguration.ParseContext(TestContext, out nkv, out helper);
+
+            var book = Book.Generate();
+
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+                session.Insert(book);
+                session.Lock(book);
+
+                book.Pages++;
+
+                try
+                {
+                    session.Delete(book);
+                    Assert.Fail("Expecting an NkvException with AckCode=EntityLocked");
+                }
+                catch (NkvException ex)
+                {
+                    Assert.AreEqual(NkvAckCode.EntityLocked, ex.AckCode);
+                }
+
+                helper.AssertRowExists("Book", book.Key);
+                
+                session.Unlock(book);
+                session.Delete(book);
+
+                helper.AssertRowExists("Book", book.Key, false);
             }
         }
     }

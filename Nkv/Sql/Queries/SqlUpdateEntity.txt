@@ -2,11 +2,13 @@
 (
 	@key nvarchar(128),
 	@value nvarchar(max),
-	@timestamp datetime
+	@timestamp datetime,
+	@ignoreLock tinyint = 0
 ) as
 begin
 	declare @outputTable table ([RowTimestamp] datetime);
 	declare @rowTimestamp datetime = null;
+	declare @lockTimestamp datetime = null;
 	declare @rowCount int = 0;
 	declare @ackCode varchar(32);
 
@@ -15,7 +17,7 @@ begin
 		[Timestamp] = sysutcdatetime()
 	output
 		inserted.[Timestamp] into @outputTable
-	where [Key] = @key and [Timestamp] = @timestamp;
+	where [Key] = @key and [Timestamp] = @timestamp and (@ignoreLock = 1 or [LockTimestamp] is null);
 		
 	set @ackCode = 'Success';
 
@@ -25,12 +27,13 @@ begin
 	if @rowCount <> 1
 	begin
 		set @rowTimestamp = null;
-		select @rowTimestamp = [Timestamp] from [{0}] where [Key] = @key;
+		select @rowTimestamp = [Timestamp], @lockTimestamp = [LockTimestamp] from [{0}] where [Key] = @key;
 	
 		select @ackCode = 
 		case
 			when @rowTimestamp is null then 'KeyNotFound'
 			when @timestamp <> @rowTimestamp then 'TimestampMismatch'
+			when @lockTimestamp is not null then 'EntityLocked'
 			else 'Unknown'
 		end;
 	end

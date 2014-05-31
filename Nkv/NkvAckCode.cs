@@ -8,5 +8,6 @@ namespace Nkv
         KeyExists = 1,
         KeyNotFound = 2,
         TimestampMismatch = 3,
+        EntityLocked = 4
     }
 }
