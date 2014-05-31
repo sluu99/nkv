@@ -20,7 +20,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
                 session.Insert(book);
 
                 helper.AssertRowExists("Book", book.Key);
@@ -41,7 +41,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
             }
 
             using (var tx = new TransactionScope())
@@ -70,7 +70,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
             }
 
             using (var tx = new TransactionScope())
@@ -98,7 +98,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
             }
 
             using (var outterTx = new TransactionScope())
@@ -132,7 +132,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
 
                 book.Key = book.Key.ToLower();
                 session.Insert(book);
@@ -151,8 +151,8 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
-                session.CreateTable<BlogEntry>();
+                session.Init<Book>();
+                session.Init<BlogEntry>();
 
                 string key = Guid.NewGuid().ToString();
                 var book = Book.Generate();
@@ -182,7 +182,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
 
                 session.Insert(book1);
                 helper.AssertRowExists("Book", book1.Key);

@@ -19,7 +19,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
 
                 var book = Book.Generate();
                 
@@ -46,7 +46,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
 
                 session.Insert(book); // insert
                 
@@ -79,7 +79,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
 
                 try
                 {
@@ -103,7 +103,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
                 session.Insert(book);
                 session.Lock(book);
 

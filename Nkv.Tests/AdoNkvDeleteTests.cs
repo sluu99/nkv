@@ -22,7 +22,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
 
                 session.Insert(book);
                 helper.AssertRowExists("Book", book.Key);
@@ -45,7 +45,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
 
                 session.Insert(book);
                 helper.AssertRowExists("Book", book.Key);
@@ -78,7 +78,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
 
                 session.Insert(book);
                 helper.AssertRowExists("Book", book.Key);
@@ -110,7 +110,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
                 session.Insert(book);
                 session.Lock(book);
 
@@ -148,7 +148,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
                 session.Insert(book1);
                 session.Insert(book2);
 
@@ -187,7 +187,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
 
                 session.Insert(book);
                 helper.AssertRowExists("Book", book.Key);

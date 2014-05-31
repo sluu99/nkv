@@ -151,7 +151,7 @@ namespace Nkv.Sql
         }
 
 
-        public string[] GetCreateTableQueries(string tableName)
+        public string[] GetInitQueries(string tableName)
         {
             return new string[]
             {

@@ -36,7 +36,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<CountTestFixture>();
+                session.Init<CountTestFixture>();
 
                 Assert.AreEqual(0, session.Count<CountTestFixture>());
                                

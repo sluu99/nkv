@@ -16,7 +16,7 @@ namespace Nkv.Tests
     internal class TypeWithoutAttribute : Entity { }
 
     [TestClass]
-    public class AdoNkvCreateTableTests
+    public class AdoNkvInitTests
     {        
         public TestContext TestContext { get; set; }
 
@@ -30,16 +30,16 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<TypeWithTableAttr>();
+                session.Init<TypeWithTableAttr>();
                 helper.AssertTableExists("TypeWithTableAttr");
 
-                session.CreateTable<TypeWithTableAttrAndConstructorName>();
+                session.Init<TypeWithTableAttrAndConstructorName>();
                 helper.AssertTableExists("SomethingElse1");
 
-                session.CreateTable<TypeWithTableAttrAndPropName>();
+                session.Init<TypeWithTableAttrAndPropName>();
                 helper.AssertTableExists("SomethingElse2");
 
-                session.CreateTable<TypeWithoutAttribute>();
+                session.Init<TypeWithoutAttribute>();
                 helper.AssertTableExists("TypeWithoutAttribute");
             }
 
@@ -55,10 +55,10 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
                 helper.AssertTableExists("Book");
 
-                session.CreateTable<Book>();
+                session.Init<Book>();
                 helper.AssertTableExists("Book");
             }
         }

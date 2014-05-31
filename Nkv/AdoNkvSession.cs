@@ -29,10 +29,10 @@ namespace Nkv
         private IDbConnection Connection { get; set; }
         private IAdoProvider Provider { get; set; }
 
-        public void CreateTable<T>() where T : Entity
+        public void Init<T>() where T : Entity
         {
             var tableName = TableAttribute.GetTableName(typeof(T));
-            var queries = Provider.GetCreateTableQueries(tableName);
+            var queries = Provider.GetInitQueries(tableName);
 
             foreach (var query in queries)
             {

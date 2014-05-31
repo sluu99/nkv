@@ -4,7 +4,7 @@ namespace Nkv
 {
     public interface INkvSession : IDisposable
     {
-        void CreateTable<T>() where T : Entity;
+        void Init<T>() where T : Entity;
         T Select<T>(string key) where T : Entity;
         T[] SelectPrefix<T>(string prefix) where T : Entity;
         T[] SelectMany<T>(params string[] keys) where T : Entity;

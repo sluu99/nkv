@@ -19,7 +19,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
                 session.Insert(book);
 
                 var version = book.Version;
@@ -41,7 +41,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
                 session.Insert(book);
                 
                 var version = book.Version;
@@ -67,7 +67,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
                 session.Insert(book);
 
                 var book2 = session.Select<Book>(book.Key);
@@ -95,7 +95,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
                 session.Insert(book);
                                 
                 var book2 = session.Select<Book>(book.Key);
@@ -124,7 +124,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
                 
                 try
                 {
@@ -147,7 +147,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
 
                 try
                 {

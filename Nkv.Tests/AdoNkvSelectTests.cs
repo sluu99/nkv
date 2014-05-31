@@ -24,7 +24,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
 
                 var book = Book.Generate();
                 session.Insert(book);
@@ -53,7 +53,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
 
                 // make sure there's something in the database
                 for (int i = 0; i < 10; i++)
@@ -74,8 +74,8 @@ namespace Nkv.Tests
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
-                session.CreateTable<BlogEntry>();
+                session.Init<Book>();
+                session.Init<BlogEntry>();
 
                 var book = Book.Generate();
                 var blogEntry = BlogEntry.Generate();
@@ -102,7 +102,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
                 var book = Book.Generate();
 
                 session.Insert(book);
@@ -133,7 +133,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
                 var book = Book.Generate();
 
                 session.Insert(book);
@@ -159,7 +159,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
                 var book = Book.Generate();
 
                 session.Insert(book);
@@ -186,7 +186,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
                 var book = Book.Generate();
 
                 session.Insert(book);
@@ -217,7 +217,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
 
                 var books = new Book[10];
 
@@ -244,7 +244,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
 
                 var books = new Book[10];
 
@@ -269,7 +269,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<Book>();
+                session.Init<Book>();
 
                 var books = new Book[10];
 
@@ -314,7 +314,7 @@ namespace Nkv.Tests
 
             using (var session = nkv.BeginSession())
             {
-                session.CreateTable<SelectAllTestFixture>();
+                session.Init<SelectAllTestFixture>();
 
                 var entities = session.SelectAll<SelectAllTestFixture>(0, int.MaxValue);
                 Assert.IsNotNull(entities);
