@@ -11,7 +11,7 @@ namespace Nkv.Tests
     [TestClass]
     public class TestConfiguration
     {
-        public static Dictionary<string, ITestHelper> TestHelpers { get; set; }
+        public static Dictionary<string, IAdoTestHelper> TestHelpers { get; set; }
         public static Dictionary<string, IAdoProvider> Providers { get; set; }
 
         [AssemblyInitialize]
@@ -21,7 +21,7 @@ namespace Nkv.Tests
             sqlTestHelper.DropDatabase();
             sqlTestHelper.CreateDatabase();
 
-            TestHelpers = new Dictionary<string, ITestHelper>();
+            TestHelpers = new Dictionary<string, IAdoTestHelper>();
             TestHelpers["Nkv.Tests.Sql.SqlTestHelper"] = sqlTestHelper;
 
             Providers = new Dictionary<string, IAdoProvider>();
@@ -35,7 +35,7 @@ namespace Nkv.Tests
             return new AdoNkv(provider);
         }
 
-        public static void ParseContext(TestContext context, out AdoNkv nkv, out ITestHelper helper)
+        public static void ParseContext(TestContext context, out AdoNkv nkv, out IAdoTestHelper helper)
         {
             nkv = CreateNkv(context);
             helper = TestHelpers[context.DataRow["Helper"].ToString()];

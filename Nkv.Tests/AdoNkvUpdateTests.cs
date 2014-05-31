@@ -6,7 +6,7 @@ using System.Threading;
 namespace Nkv.Tests
 {
     [TestClass]
-    public class NkvUpdateTests
+    public class AdoNkvUpdateTests
     {
         public TestContext TestContext { get; set; }
 
@@ -39,7 +39,7 @@ namespace Nkv.Tests
         public void TestUpdate_entity_modified()
         {
             AdoNkv nkv;
-            ITestHelper helper;
+            IAdoTestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             var book = Book.Generate();
@@ -72,7 +72,7 @@ namespace Nkv.Tests
         public void TestUpdate_entity_not_exists()
         {
             AdoNkv nkv;
-            ITestHelper helper;
+            IAdoTestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             var book = Book.Generate();

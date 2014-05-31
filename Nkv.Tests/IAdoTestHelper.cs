@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Nkv.Tests
 {
-    public interface ITestHelper
+    public interface IAdoTestHelper
     {
         void AssertTableExists(string tableName);
         void AssertRowExists(string tableName, string key, bool exists = true);

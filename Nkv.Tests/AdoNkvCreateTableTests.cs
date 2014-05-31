@@ -16,7 +16,7 @@ namespace Nkv.Tests
     internal class TypeWithoutAttribute : Entity { }
 
     [TestClass]
-    public class NkvCreateTableTests
+    public class AdoNkvCreateTableTests
     {        
         public TestContext TestContext { get; set; }
 
@@ -25,7 +25,7 @@ namespace Nkv.Tests
         public void TestCreateTable()
         {
             AdoNkv nkv;
-            ITestHelper helper;
+            IAdoTestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             using (var session = nkv.BeginSession())
@@ -50,7 +50,7 @@ namespace Nkv.Tests
         public void TestCreateTable_already_exists()
         {
             AdoNkv nkv;
-            ITestHelper helper;
+            IAdoTestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             using (var session = nkv.BeginSession())

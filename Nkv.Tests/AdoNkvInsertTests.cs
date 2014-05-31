@@ -6,7 +6,7 @@ using System.Transactions;
 namespace Nkv.Tests
 {
     [TestClass]
-    public class NkvInsertTests
+    public class AdoNkvInsertTests
     {
         public TestContext TestContext { get; set; }
 
@@ -173,7 +173,7 @@ namespace Nkv.Tests
         public void TestInsert_duplicate_key()
         {
             AdoNkv nkv;
-            ITestHelper helper;
+            IAdoTestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             var book1 = Book.Generate();

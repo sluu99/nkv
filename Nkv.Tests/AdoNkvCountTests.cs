@@ -5,7 +5,7 @@ using Nkv.Attributes;
 namespace Nkv.Tests
 {
     [TestClass]
-    public class NkvCountTests
+    public class AdoNkvCountTests
     {
         [Table("CountTest")]
         private class CountTestFixture : Entity
@@ -28,7 +28,7 @@ namespace Nkv.Tests
         public void TestCount()
         {
             AdoNkv nkv;
-            ITestHelper helper;
+            IAdoTestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             Random rand = new Random();

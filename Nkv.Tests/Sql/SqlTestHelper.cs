@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Nkv.Tests.Sql
 {
-    public class SqlTestHelper : ITestHelper
+    public class SqlTestHelper : IAdoTestHelper
     {
         #region Static fields
 

@@ -8,7 +8,7 @@ using Nkv.Attributes;
 namespace Nkv.Tests
 {
     [TestClass]
-    public class NkvSelectTests
+    public class AdoNkvSelectTests
     {
         public TestContext TestContext { get; set; }
 
@@ -19,7 +19,7 @@ namespace Nkv.Tests
         public void TestSelect()
         {
             AdoNkv nkv;
-            ITestHelper helper;
+            IAdoTestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             using (var session = nkv.BeginSession())
@@ -48,7 +48,7 @@ namespace Nkv.Tests
         public void TestSelect_not_exists()
         {
             AdoNkv nkv;
-            ITestHelper helper;
+            IAdoTestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             using (var session = nkv.BeginSession())
@@ -70,7 +70,7 @@ namespace Nkv.Tests
         public void TestSelect_keys_on_different_tables()
         {
             AdoNkv nkv;
-            ITestHelper helper;
+            IAdoTestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
             using (var session = nkv.BeginSession())
             {

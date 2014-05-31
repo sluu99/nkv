@@ -6,7 +6,7 @@ using System.Threading;
 namespace Nkv.Tests
 {
     [TestClass]
-    public class NkvLockTests
+    public class AdoNkvLockTests
     {
         public TestContext TestContext { get; set; }
 

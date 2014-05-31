@@ -6,7 +6,7 @@ using System.Threading;
 namespace Nkv.Tests
 {
     [TestClass]
-    public class NkvDeleteTests
+    public class AdoNkvDeleteTests
     {
         public TestContext TestContext { get; set; }
 
@@ -15,7 +15,7 @@ namespace Nkv.Tests
         public void TestDelete()
         {
             AdoNkv nkv;
-            ITestHelper helper;
+            IAdoTestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             var book = Book.Generate();
@@ -38,7 +38,7 @@ namespace Nkv.Tests
         public void TestDelete_modified_entity()
         {
             AdoNkv nkv;
-            ITestHelper helper;
+            IAdoTestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             var book = Book.Generate();
@@ -71,7 +71,7 @@ namespace Nkv.Tests
         public void TestDelete_non_existent()
         {
             AdoNkv nkv;
-            ITestHelper helper;
+            IAdoTestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             var book = Book.Generate();
@@ -103,7 +103,7 @@ namespace Nkv.Tests
         public void TestDelete_entity_locked()
         {
             AdoNkv nkv;
-            ITestHelper helper;
+            IAdoTestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             var book = Book.Generate();
@@ -140,7 +140,7 @@ namespace Nkv.Tests
         public void TestForceDelete()
         {
             AdoNkv nkv;
-            ITestHelper helper;
+            IAdoTestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             var book1 = Book.Generate();
@@ -180,7 +180,7 @@ namespace Nkv.Tests
         public void TestForceDelete_modified_entity()
         {
             AdoNkv nkv;
-            ITestHelper helper;
+            IAdoTestHelper helper;
             TestConfiguration.ParseContext(TestContext, out nkv, out helper);
 
             var book = Book.Generate();
