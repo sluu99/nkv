@@ -13,7 +13,22 @@ assembly_info:
   assembly_file_version: "{version}"
   assembly_informational_version: "{version}"
 
-before_build:
-  - nuget restore
+branches:
+  only:
+    - master
+    - release
 
 configuration: Release
+platform: AnyCPU
+
+build:
+  publish_nuget: true
+
+deploy:
+  provider: NuGet
+  server:
+  on:
+    branch: release
+  api_key:
+    secure: 3WN3MqedM2twg3Xe39gPfz3b3lJZt1x2aLd7k8ALaooK4oKBbiv+na5bho8Nmdbz
+  artifact: /.*\.nupkg/
