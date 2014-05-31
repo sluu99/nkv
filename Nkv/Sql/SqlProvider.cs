@@ -167,12 +167,17 @@ namespace Nkv.Sql
 
         public string GetDeleteQuery(string tableName, out string keyParamName, out string timestampParamName)
         {
+            return InternalGetDeleteQuery(tableName, out keyParamName, out timestampParamName, false);
+        }
+
+        private static string InternalGetDeleteQuery(string tableName, out string keyParamName, out string timestampParamName, bool ignoreLock)
+        {
             keyParamName = "@keyInput";
             timestampParamName = "@timestampInput";
 
-            string query = "exec [nkv_Delete{0}Entity] @key=@keyInput, @timestamp=@timestampInput";
+            string query = "exec [nkv_Delete{0}Entity] @key=@keyInput, @timestamp=@timestampInput, @ignoreLock = {1}";
 
-            return string.Format(query, tableName);
+            return string.Format(query, tableName, ignoreLock ? 1 : 0);
         }
 
 
@@ -259,6 +264,11 @@ namespace Nkv.Sql
             string query = "exec [nkv_Set{0}LockTimestamp] @key=@keyInput, @timestamp=@timestampInput, @isLock=0";
 
             return string.Format(query, tableName);
+        }
+        
+        public string GetForceDeleteQuery(string tableName, out string keyParamName, out string timestampParamName)
+        {
+            return InternalGetDeleteQuery(tableName, out keyParamName, out timestampParamName, true);
         }
     }
 }

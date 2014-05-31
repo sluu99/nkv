@@ -27,6 +27,8 @@ namespace Nkv.Interfaces
 
         string GetDeleteQuery(string tableName, out string keyParamName, out string timestampParamName);
 
+        string GetForceDeleteQuery(string tableName, out string keyParamName, out string timestampParamName);
+
         string GetInsertQuery(string tableName, out string keyParamName, out string valueParamName);
 
         string GetUpdateQuery(string tableName, out string keyParamName, out string valueParamName, out string timestampParamName);

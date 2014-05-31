@@ -198,22 +198,12 @@ namespace Nkv
 
         public void Delete<T>(T entity) where T : Entity
         {
-            ValidateEntity(entity);
-
-            string tableName = TableAttribute.GetTableName(typeof(T));
-            string keyParamName;
-            string timestampParamName;
-            string query = Provider.GetDeleteQuery(tableName, out keyParamName, out timestampParamName);
-            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, Entity.MaxKeySize);
-            var timestampParam = Provider.CreateParameter(timestampParamName, SqlDbType.DateTime, entity.Timestamp);
-
-            Action<IDataReader> readerCallback = (reader) =>
-            {
-                DateTime timestamp;
-                ValidateReaderResult(reader, 1, string.Format("Error deleting {0} entity with key={1}", tableName, entity.Key), out timestamp);
-            };
-
-            ExecuteReader(query, readerCallback, keyParam, timestampParam);
+            InternalDelete<T>(entity, false);
+        }
+        
+        public void ForceDelete<T>(T entity) where T : Entity
+        {
+            InternalDelete<T>(entity, true);
         }
 
         public void Lock<T>(T entity) where T : Entity
@@ -252,6 +242,28 @@ namespace Nkv
                 );
 
                 entity.Timestamp = timestamp;
+            };
+
+            ExecuteReader(query, readerCallback, keyParam, timestampParam);
+        }
+
+        private void InternalDelete<T>(T entity, bool forceDelete) where T : Entity
+        {
+            ValidateEntity(entity);
+
+            string tableName = TableAttribute.GetTableName(typeof(T));
+            string keyParamName;
+            string timestampParamName;
+            string query = forceDelete ?
+                Provider.GetForceDeleteQuery(tableName, out keyParamName, out timestampParamName) :
+                Provider.GetDeleteQuery(tableName, out keyParamName, out timestampParamName);
+            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, Entity.MaxKeySize);
+            var timestampParam = Provider.CreateParameter(timestampParamName, SqlDbType.DateTime, entity.Timestamp);
+
+            Action<IDataReader> readerCallback = (reader) =>
+            {
+                DateTime timestamp;
+                ValidateReaderResult(reader, 1, string.Format("Error deleting {0} entity with key={1}", tableName, entity.Key), out timestamp);
             };
 
             ExecuteReader(query, readerCallback, keyParam, timestampParam);
