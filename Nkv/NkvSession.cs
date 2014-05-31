@@ -227,13 +227,13 @@ namespace Nkv
 
             string tableName = TableAttribute.GetTableName(typeof(T));
             string keyParamName;
-            string timestampParamName;
+            string versionParamName;
             string query = isLock ?
-                Provider.GetLockQuery(tableName, out keyParamName, out timestampParamName) :
-                Provider.GetUnlockQuery(tableName, out keyParamName, out timestampParamName);
+                Provider.GetLockQuery(tableName, out keyParamName, out versionParamName) :
+                Provider.GetUnlockQuery(tableName, out keyParamName, out versionParamName);
 
             var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, Entity.MaxKeySize);
-            var timestampParam = Provider.CreateParameter(timestampParamName, SqlDbType.DateTime, entity.Timestamp);
+            var versionParam = Provider.CreateParameter(versionParamName, SqlDbType.BigInt, entity.Version);
 
             Action<IDataReader> readerCallback = (reader) =>
             {
@@ -249,9 +249,10 @@ namespace Nkv
                 );
 
                 entity.Timestamp = timestamp;
+                entity.Version = version;
             };
 
-            ExecuteReader(query, readerCallback, keyParam, timestampParam);
+            ExecuteReader(query, readerCallback, keyParam, versionParam);
         }
 
         private void InternalDelete<T>(T entity, bool forceDelete) where T : Entity

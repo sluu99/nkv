@@ -27,7 +27,7 @@ namespace Nkv.Interfaces
 
         string GetDeleteQuery(string tableName, out string keyParamName, out string versionParamName);
 
-        string GetForceDeleteQuery(string tableName, out string keyParamName, out string timestampParamName);
+        string GetForceDeleteQuery(string tableName, out string keyParamName, out string versionParamName);
 
         string GetInsertQuery(string tableName, out string keyParamName, out string valueParamName);
 
@@ -35,9 +35,9 @@ namespace Nkv.Interfaces
 
         string GetCountQuery(string tableName);
 
-        string GetLockQuery(string tableName, out string keyParamName, out string timestampParamName);
+        string GetLockQuery(string tableName, out string keyParamName, out string versionParamName);
 
-        string GetUnlockQuery(string tableName, out string keyParamName, out string timestampParamName);
+        string GetUnlockQuery(string tableName, out string keyParamName, out string versionParamName);
 
         IDbDataParameter CreateParameter(string name, SqlDbType type, object value, int size = 0);
     }

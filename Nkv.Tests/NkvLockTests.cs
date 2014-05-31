@@ -22,8 +22,13 @@ namespace Nkv.Tests
                 session.CreateTable<Book>();
                 session.Insert(book);
 
+                var version = book.Version;
                 session.Lock(book);
+                Assert.IsTrue(book.Version > version, "Entity version should increase after locking");
+
+                version = book.Version;
                 session.Lock(book); // should not throw an exception if the entity is already locked
+                Assert.IsTrue(book.Version > version, "Entity version should increase after locking");
             }
         }
 
@@ -38,12 +43,17 @@ namespace Nkv.Tests
             {
                 session.CreateTable<Book>();
                 session.Insert(book);
-
+                
+                var version = book.Version;
                 session.Unlock(book); // it's okay to unlock an entity that's not locked
-
+                Assert.IsTrue(book.Version > version, "Entity version should increase after unlocking");
+                                
                 session.Lock(book);
 
+                version = book.Version;
                 session.Unlock(book);
+                Assert.IsTrue(book.Version > version, "Entity version should increase after unlocking");
+
                 session.Unlock(book); // should not throw an exception if the entity is not locked
             }
         }

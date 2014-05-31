@@ -1,15 +1,15 @@
 ﻿alter procedure nkv_Set{0}LockTimestamp
 (
     @key varchar(128),       
-    @timestamp datetime,
+    @version bigint,
     @isLock tinyint
 ) as
 begin
-    declare @outputTable table ([RowTimestamp] datetime);
+    declare @outputTable table ([RowTimestamp] datetime, [RowVersion] bigint);
     declare @rowTimestamp datetime = null;
+	declare @rowVersion bigint;
     declare @rowCount int = 0;
     declare @ackCode varchar(32);
-	declare @version bigint = 0;
 
     update [{0}] set 
         [LockTimestamp] =
@@ -17,27 +17,28 @@ begin
 				when @isLock = 1 then sysutcdatetime()
 				else null
 			end,
-        [Timestamp] = sysutcdatetime()
-    output inserted.[Timestamp] into @outputTable
-    where [Key] = @key and [Timestamp] = @timestamp;
+        [Timestamp] = sysutcdatetime(),
+		[Version] = [Version] + 1
+    output inserted.[Timestamp], inserted.[Version] into @outputTable
+    where [Key] = @key and [Version] = @version;
 
     set @ackCode = 'Success';
 
     select @rowCount = count(1) from @outputTable;
-    select top 1 @rowTimestamp = [RowTimestamp] from @outputTable;
+    select top 1 @rowTimestamp = [RowTimestamp], @rowVersion = [RowVersion] from @outputTable;
 
     if @rowCount <> 1
     begin
         set @rowTimestamp = null;
-        select @rowTimestamp = [Timestamp] from [{0}] where [Key] = @key;
+        select @rowTimestamp = [Timestamp], @rowVersion = [Version] from [{0}] where [Key] = @key;
 
         set @ackCode =
         case
             when @rowTimestamp is null then 'KeyNotFound'
-            when @timestamp <> @rowTimestamp then 'VersionMismatch'
+            when @version <> @rowVersion then 'VersionMismatch'
             else 'Unknown'
         end;
     end
 
-	select @rowCount [RowCount], @ackCode [AckCode], @rowTimestamp [Timestamp], @version [Version];
+	select @rowCount [RowCount], @ackCode [AckCode], @rowTimestamp [Timestamp], @rowVersion [Version];
 end

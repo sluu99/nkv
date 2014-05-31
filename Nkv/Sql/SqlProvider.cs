@@ -246,29 +246,29 @@ namespace Nkv.Sql
         }
 
 
-        public string GetLockQuery(string tableName, out string keyParamName, out string timestampParamName)
+        public string GetLockQuery(string tableName, out string keyParamName, out string versionParamName)
         {
             keyParamName = "@keyInput";
-            timestampParamName = "@timestampInput";
+            versionParamName = "@versionInput";
 
-            string query = "exec [nkv_Set{0}LockTimestamp] @key=@keyInput, @timestamp=@timestampInput, @isLock=1";
+            string query = "exec [nkv_Set{0}LockTimestamp] @key=@keyInput, @version=@versionInput, @isLock=1";
 
             return string.Format(query, tableName);
         }
 
-        public string GetUnlockQuery(string tableName, out string keyParamName, out string timestampParamName)
+        public string GetUnlockQuery(string tableName, out string keyParamName, out string versionParamName)
         {
             keyParamName = "@keyInput";
-            timestampParamName = "@timestampInput";
+            versionParamName = "@versionInput";
 
-            string query = "exec [nkv_Set{0}LockTimestamp] @key=@keyInput, @timestamp=@timestampInput, @isLock=0";
+            string query = "exec [nkv_Set{0}LockTimestamp] @key=@keyInput, @version=@versionInput, @isLock=0";
 
             return string.Format(query, tableName);
         }
         
-        public string GetForceDeleteQuery(string tableName, out string keyParamName, out string timestampParamName)
+        public string GetForceDeleteQuery(string tableName, out string keyParamName, out string versionParamName)
         {
-            return InternalGetDeleteQuery(tableName, out keyParamName, out timestampParamName, true);
+            return InternalGetDeleteQuery(tableName, out keyParamName, out versionParamName, true);
         }
     }
 }
