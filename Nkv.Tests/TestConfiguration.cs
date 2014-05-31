@@ -4,7 +4,6 @@ using System.Data.SqlClient;
 using Nkv.Sql;
 using System.Collections.Generic;
 using Nkv.Tests.Sql;
-using Nkv.Interfaces;
 
 namespace Nkv.Tests
 {

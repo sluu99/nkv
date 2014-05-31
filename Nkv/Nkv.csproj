@@ -49,11 +49,11 @@
     <Compile Include="Entity.cs" />
     <Compile Include="INkv.cs" />
     <Compile Include="INkvSession.cs" />
-    <Compile Include="Interfaces\IAdoProvider.cs" />
-    <Compile Include="AdoNkv.cs" />
+    <Compile Include="Ado\IAdoProvider.cs" />
+    <Compile Include="Ado\AdoNkv.cs" />
     <Compile Include="NkvAckCode.cs" />
     <Compile Include="NkvException.cs" />
-    <Compile Include="AdoNkvSession.cs" />
+    <Compile Include="Ado\AdoNkvSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Sql\Queries\SqlSetLockTimestamp.txt" />
     <Compile Include="Sql\SqlAdoProvider.cs" />

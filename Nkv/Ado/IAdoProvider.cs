@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace Nkv.Interfaces
+namespace Nkv
 {
     public interface IAdoProvider
     {

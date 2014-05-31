@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Nkv.Attributes;
-using Nkv.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Data;
