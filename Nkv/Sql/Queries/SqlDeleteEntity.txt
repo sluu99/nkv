@@ -1,31 +1,31 @@
 ﻿alter procedure nkv_Delete{0}Entity
 (
 	@key nvarchar(128),
-	@timestamp datetime,
+	@version bigint,
 	@ignoreLock tinyint = 0
 )
 as
 begin	
 	declare @rowTimestamp datetime;
+	declare @rowVersion bigint;
 	declare @lockTimestamp datetime;
 	declare @rowCount int;
 	declare @ackCode varchar(32) = 'Success'
-	declare @version bigint = 0;
 
-	delete from [{0}] where [Key] = @key and [Timestamp] = @timestamp and (@ignoreLock = 1 or [LockTimestamp] is null);
+	delete from [{0}] where [Key] = @key and [Version] = @version and (@ignoreLock = 1 or [LockTimestamp] is null);
                 
 	set @rowCount = @@rowcount;
 	if @rowCount <> 1
 	begin
-		select @rowTimestamp = [Timestamp], @lockTimestamp = [LockTimestamp] from [{0}] where [Key] = @key;
+		select @rowTimestamp = [Timestamp], @rowVersion = [Version], @lockTimestamp = [LockTimestamp] from [{0}] where [Key] = @key;
 		set @ackCode =
 		case
 			when @rowTimestamp is null then 'KeyNotFound'
-			when @rowTimestamp <> @timestamp then 'VersionMismatch'
+			when @rowVersion <> @version then 'VersionMismatch'
 			when @lockTimestamp is not null then 'EntityLocked'
 			else 'Unknown'
 		end;
 	end
 
-	select @rowCount [RowCount], @ackCode [AckCode], @rowTimestamp [Timestamp], @version [Version];
+	select @rowCount [RowCount], @ackCode [AckCode], @rowTimestamp [Timestamp], @rowVersion [Version];
 end

@@ -25,7 +25,7 @@ namespace Nkv.Interfaces
 
         string GetSelectAllQuery(string tableName, long skip, int take);
 
-        string GetDeleteQuery(string tableName, out string keyParamName, out string timestampParamName);
+        string GetDeleteQuery(string tableName, out string keyParamName, out string versionParamName);
 
         string GetForceDeleteQuery(string tableName, out string keyParamName, out string timestampParamName);
 

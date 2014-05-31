@@ -260,21 +260,24 @@ namespace Nkv
 
             string tableName = TableAttribute.GetTableName(typeof(T));
             string keyParamName;
-            string timestampParamName;
+            string versionParamName;
             string query = forceDelete ?
-                Provider.GetForceDeleteQuery(tableName, out keyParamName, out timestampParamName) :
-                Provider.GetDeleteQuery(tableName, out keyParamName, out timestampParamName);
+                Provider.GetForceDeleteQuery(tableName, out keyParamName, out versionParamName) :
+                Provider.GetDeleteQuery(tableName, out keyParamName, out versionParamName);
             var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, Entity.MaxKeySize);
-            var timestampParam = Provider.CreateParameter(timestampParamName, SqlDbType.DateTime, entity.Timestamp);
+            var versionParam = Provider.CreateParameter(versionParamName, SqlDbType.BigInt, entity.Version);
 
             Action<IDataReader> readerCallback = (reader) =>
             {
                 DateTime timestamp;
                 long version;
                 ValidateReaderResult(reader, 1, string.Format("Error deleting {0} entity with key={1}", tableName, entity.Key), out timestamp, out version);
+
+                entity.Timestamp = timestamp;
+                entity.Version = version;
             };
 
-            ExecuteReader(query, readerCallback, keyParam, timestampParam);
+            ExecuteReader(query, readerCallback, keyParam, versionParam);
         }
 
         #region Helper methods

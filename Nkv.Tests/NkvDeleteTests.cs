@@ -28,7 +28,8 @@ namespace Nkv.Tests
                 helper.AssertRowExists("Book", book.Key);
 
                 session.Delete(book);
-                helper.AssertRowExists("Book", book.Key, false);
+                Assert.AreEqual(0, book.Version);
+                helper.AssertRowExists("Book", book.Key, false);                
             }
         }
 
@@ -48,8 +49,7 @@ namespace Nkv.Tests
 
                 session.Insert(book);
                 helper.AssertRowExists("Book", book.Key);
-
-                Thread.Sleep(500); // make sure the time has changed
+                                
                 var bookInstance2 = session.Select<Book>(book.Key);                               
                 session.Update(bookInstance2);
 

@@ -165,17 +165,17 @@ namespace Nkv.Sql
         }
 
 
-        public string GetDeleteQuery(string tableName, out string keyParamName, out string timestampParamName)
+        public string GetDeleteQuery(string tableName, out string keyParamName, out string versionParamName)
         {
-            return InternalGetDeleteQuery(tableName, out keyParamName, out timestampParamName, false);
+            return InternalGetDeleteQuery(tableName, out keyParamName, out versionParamName, false);
         }
 
-        private static string InternalGetDeleteQuery(string tableName, out string keyParamName, out string timestampParamName, bool ignoreLock)
+        private static string InternalGetDeleteQuery(string tableName, out string keyParamName, out string versionParamName, bool ignoreLock)
         {
             keyParamName = "@keyInput";
-            timestampParamName = "@timestampInput";
+            versionParamName = "@versionInput";
 
-            string query = "exec [nkv_Delete{0}Entity] @key=@keyInput, @timestamp=@timestampInput, @ignoreLock = {1}";
+            string query = "exec [nkv_Delete{0}Entity] @key=@keyInput, @version=@versionInput, @ignoreLock = {1}";
 
             return string.Format(query, tableName, ignoreLock ? 1 : 0);
         }
