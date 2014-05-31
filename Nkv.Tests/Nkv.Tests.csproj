@@ -81,6 +81,7 @@
     <Compile Include="NkvInsertTests.cs" />
     <Compile Include="NkvUpdateTests.cs" />
     <Compile Include="NkvCountTests.cs" />
+    <Compile Include="NkvLockTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

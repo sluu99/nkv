@@ -2,7 +2,7 @@
 (
     @key varchar(128),       
     @timestamp datetime,
-    @lockTimestamp datetime = null
+    @isLock tinyint
 ) as
 begin
     declare @outputTable table ([RowTimestamp] datetime);
@@ -11,7 +11,11 @@ begin
     declare @ackCode varchar(32);
 
     update [{0}] set 
-        [LockTimestamp] = @lockTimestamp,
+        [LockTimestamp] =
+			case
+				when @isLock = 1 then sysutcdatetime()
+				else null
+			end,
         [Timestamp] = sysutcdatetime()
     output inserted.[Timestamp] into @outputTable
     where [Key] = @key and [Timestamp] = @timestamp;
@@ -33,4 +37,6 @@ begin
             else 'Unknown'
         end;
     end
+
+	select @rowCount [RowCount], @rowTimestamp [Timestamp], @ackCode [AckCode];
 end

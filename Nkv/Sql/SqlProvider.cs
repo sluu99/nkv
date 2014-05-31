@@ -246,7 +246,7 @@ namespace Nkv.Sql
             keyParamName = "@keyInput";
             timestampParamName = "@timestampInput";
 
-            string query = "exec [nkv_Set{0}LockTimestamp] @key=@keyInput, @timestamp=@timestampInput @lockTimestamp=sysutcdatetime()";
+            string query = "exec [nkv_Set{0}LockTimestamp] @key=@keyInput, @timestamp=@timestampInput, @isLock=1";
 
             return string.Format(query, tableName);
         }
@@ -256,7 +256,7 @@ namespace Nkv.Sql
             keyParamName = "@keyInput";
             timestampParamName = "@timestampInput";
 
-            string query = "exec [nkv_Set{0}LockTimestamp] @key=@keyInput, @timestamp=@timestampInput @lockTimestamp=null";
+            string query = "exec [nkv_Set{0}LockTimestamp] @key=@keyInput, @timestamp=@timestampInput, @isLock=0";
 
             return string.Format(query, tableName);
         }
