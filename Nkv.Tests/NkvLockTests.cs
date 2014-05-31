@@ -97,12 +97,11 @@ namespace Nkv.Tests
             {
                 session.CreateTable<Book>();
                 session.Insert(book);
-
-                Thread.Sleep(500);
-
+                                
                 var book2 = session.Select<Book>(book.Key);
                 book.Pages++;
                 session.Update(book2);
+                Assert.IsTrue(book2.Version > book.Version, "Entity version should increase");
 
                 try
                 {

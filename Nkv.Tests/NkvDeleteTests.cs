@@ -192,9 +192,9 @@ namespace Nkv.Tests
                 session.Insert(book);
                 helper.AssertRowExists("Book", book.Key);
 
-                Thread.Sleep(500); // make sure the time has changed
                 var bookInstance2 = session.Select<Book>(book.Key);
                 session.Update(bookInstance2);
+                Assert.IsTrue(bookInstance2.Version > book.Version, "Entity version should increase after update");
 
                 try
                 {
