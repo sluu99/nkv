@@ -162,8 +162,10 @@ namespace Nkv
             Action<IDataReader> readerCallback = (reader) =>
             {
                 DateTime timestamp;
-                ValidateReaderResult(reader, 1, string.Format("Error inserting {0} entity with key={1}", tableName, entity.Key), out timestamp);
+                long version;
+                ValidateReaderResult(reader, 1, string.Format("Error inserting {0} entity with key={1}", tableName, entity.Key), out timestamp, out version);
                 entity.Timestamp = timestamp;
+                entity.Version = version;
             };
 
             ExecuteReader(query, readerCallback, keyParam, valueParam);
@@ -188,7 +190,8 @@ namespace Nkv
             Action<IDataReader> readerCallback = (reader) =>
             {
                 DateTime timestamp;
-                ValidateReaderResult(reader, 1, string.Format("Error updating {0} entity with key={1}", tableName, entity.Key), out timestamp);
+                long version;
+                ValidateReaderResult(reader, 1, string.Format("Error updating {0} entity with key={1}", tableName, entity.Key), out timestamp, out version);
 
                 entity.Timestamp = timestamp;
             };
@@ -234,11 +237,14 @@ namespace Nkv
             Action<IDataReader> readerCallback = (reader) =>
             {
                 DateTime timestamp;
+                long version;
+
                 ValidateReaderResult(
                     reader,
                     1,
                     string.Format("Error {0}locking {1} entity with key={2}", isLock ? "" : "un", tableName, entity.Key),
-                    out timestamp
+                    out timestamp,
+                    out version
                 );
 
                 entity.Timestamp = timestamp;
@@ -263,7 +269,8 @@ namespace Nkv
             Action<IDataReader> readerCallback = (reader) =>
             {
                 DateTime timestamp;
-                ValidateReaderResult(reader, 1, string.Format("Error deleting {0} entity with key={1}", tableName, entity.Key), out timestamp);
+                long version;
+                ValidateReaderResult(reader, 1, string.Format("Error deleting {0} entity with key={1}", tableName, entity.Key), out timestamp, out version);
             };
 
             ExecuteReader(query, readerCallback, keyParam, timestampParam);
@@ -289,7 +296,7 @@ namespace Nkv
             }
         }
 
-        private void ValidateReaderResult(IDataReader reader, int expectedRowCount, string errorMessage, out DateTime timestamp)
+        private void ValidateReaderResult(IDataReader reader, int expectedRowCount, string errorMessage, out DateTime timestamp, out long version)
         {
             if (!reader.Read())
             {
@@ -297,9 +304,10 @@ namespace Nkv
             }
 
             int i = 0;
-            int rowCount = reader.GetInt32(i++);
-            timestamp = reader.IsDBNull(i++) ? Entity.DefaultTimestamp : reader.GetDateTime(i - 1);
+            int rowCount = reader.GetInt32(i++);            
             var ackCode = reader.GetString(i++);
+            timestamp = reader.IsDBNull(i++) ? Entity.DefaultTimestamp : reader.GetDateTime(i - 1);
+            version = reader.GetInt64(i++);
 
             if (rowCount != expectedRowCount || !string.Equals(ackCode, "Success", StringComparison.OrdinalIgnoreCase))
             {

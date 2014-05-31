@@ -11,6 +11,7 @@ begin
 	declare @lockTimestamp datetime = null;
 	declare @rowCount int = 0;
 	declare @ackCode varchar(32);
+	declare @version bigint = 0;
 
 	update [{0}] set
 		[Value] = @value,
@@ -38,5 +39,5 @@ begin
 		end;
 	end
 
-	select @rowCount [RowCount], @rowTimestamp [Timestamp], @ackCode [AckCode];
+	select @rowCount [RowCount], @ackCode [AckCode], @rowTimestamp [Timestamp], @version [Version];
 end

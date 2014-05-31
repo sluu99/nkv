@@ -16,6 +16,7 @@ namespace Nkv
         public Entity()
         {
             Timestamp = DefaultTimestamp;
+            Version = 0;
         }
 
         [JsonIgnore]
@@ -35,5 +36,8 @@ namespace Nkv
 
         [JsonIgnore]
         public DateTime Timestamp { get; internal set; }
+
+        [JsonIgnore]
+        public long Version { get; internal set; }
     }
 }

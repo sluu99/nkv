@@ -8,6 +8,7 @@ begin
 	declare @timestamp datetime = null;
 	declare @ackCode varchar(32);
 	declare @rowCount int;
+	declare @version bigint = 1;
 
 	select @timestamp = [Timestamp]
 	from [{0}]
@@ -20,9 +21,9 @@ begin
 	end
 	else
 	begin
-		insert into [{0}]([Key], [Value], [Timestamp])
+		insert into [{0}]([Key], [Value], [Timestamp], [Version])
 		output inserted.[Timestamp] into @outputTable
-		values(@key, @value, sysutcdatetime());
+		values(@key, @value, sysutcdatetime(), @version);
 	
 		set @timestamp = null;
 		select top 1 @timestamp = [Timestamp] from @outputTable;
@@ -35,5 +36,5 @@ begin
 		end;
 	end
 
-	select @rowCount [RowCount], @timestamp [Timestamp], @ackCode [AckCode];
+	select @rowCount [RowCount], @ackCode [AckCode], @timestamp [Timestamp], @version [Version];
 end

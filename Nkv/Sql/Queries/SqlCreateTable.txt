@@ -4,5 +4,6 @@ begin
         [Key] nvarchar(128) collate SQL_Latin1_General_CP1_CS_AS primary key not null, 
         [Value] nvarchar(max), 
 		[LockTimestamp] datetime null,
-        [Timestamp] datetime not null)
+        [Timestamp] datetime not null,
+		[Version] bigint not null default 1)
 end

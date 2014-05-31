@@ -10,6 +10,7 @@ begin
 	declare @lockTimestamp datetime;
 	declare @rowCount int;
 	declare @ackCode varchar(32) = 'Success'
+	declare @version bigint = 0;
 
 	delete from [{0}] where [Key] = @key and [Timestamp] = @timestamp and (@ignoreLock = 1 or [LockTimestamp] is null);
                 
@@ -26,5 +27,5 @@ begin
 		end;
 	end
 
-	select @rowCount [RowCount], @rowTimestamp [Timestamp], @ackCode [AckCode]
+	select @rowCount [RowCount], @ackCode [AckCode], @rowTimestamp [Timestamp], @version [Version];
 end

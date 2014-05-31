@@ -24,6 +24,8 @@ namespace Nkv.Tests
                 session.Insert(book);
 
                 helper.AssertRowExists("Book", book.Key);
+
+                Assert.AreEqual(1, book.Version);
             }
         }
 
