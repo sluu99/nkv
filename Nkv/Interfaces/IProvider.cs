@@ -31,7 +31,7 @@ namespace Nkv.Interfaces
 
         string GetInsertQuery(string tableName, out string keyParamName, out string valueParamName);
 
-        string GetUpdateQuery(string tableName, out string keyParamName, out string valueParamName, out string timestampParamName);
+        string GetUpdateQuery(string tableName, out string keyParamName, out string valueParamName, out string versionParamName);
 
         string GetCountQuery(string tableName);
 

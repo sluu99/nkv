@@ -33,7 +33,7 @@ namespace Nkv
         {
             var tableName = TableAttribute.GetTableName(typeof(T));
             var queries = Provider.GetCreateTableQueries(tableName);
-            
+
             foreach (var query in queries)
             {
                 ExecuteNonQuery(query);
@@ -106,7 +106,7 @@ namespace Nkv
             string[] keyParamNames;
             var tableName = TableAttribute.GetTableName(typeof(T));
             string query = Provider.GetSelectManyQuery(tableName, keys.Length, out keyParamNames);
-            
+
             var keyParams = new IDbDataParameter[keys.Length];
             for (int i = 0; i < keys.Length; i++)
             {
@@ -117,7 +117,7 @@ namespace Nkv
 
                 keyParams[i] = Provider.CreateParameter(keyParamNames[i], SqlDbType.NVarChar, keys[i], Entity.MaxKeySize);
             }
-            
+
             var entities = new List<T>();
 
             ExecuteReader(query, (r) => ReadEntitiesFromReader(r, entities), keyParams);
@@ -178,14 +178,14 @@ namespace Nkv
 
             string keyParamName;
             string valueParamName;
-            string timestampParamName;
+            string versionParamName;
             string tableName = TableAttribute.GetTableName(typeof(T));
-            string query = Provider.GetUpdateQuery(tableName, out keyParamName, out valueParamName, out timestampParamName);
+            string query = Provider.GetUpdateQuery(tableName, out keyParamName, out valueParamName, out versionParamName);
 
             var json = JsonConvert.SerializeObject(entity);
             var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, size: Entity.MaxKeySize);
             var valueParam = Provider.CreateParameter(valueParamName, SqlDbType.NVarChar, json);
-            var timestampParam = Provider.CreateParameter(timestampParamName, SqlDbType.DateTime, entity.Timestamp);
+            var versionParam = Provider.CreateParameter(versionParamName, SqlDbType.BigInt, entity.Version);
 
             Action<IDataReader> readerCallback = (reader) =>
             {
@@ -194,16 +194,17 @@ namespace Nkv
                 ValidateReaderResult(reader, 1, string.Format("Error updating {0} entity with key={1}", tableName, entity.Key), out timestamp, out version);
 
                 entity.Timestamp = timestamp;
+                entity.Version = version;
             };
 
-            ExecuteReader(query, readerCallback, keyParam, valueParam, timestampParam);
+            ExecuteReader(query, readerCallback, keyParam, valueParam, versionParam);
         }
 
         public void Delete<T>(T entity) where T : Entity
         {
             InternalDelete<T>(entity, false);
         }
-        
+
         public void ForceDelete<T>(T entity) where T : Entity
         {
             InternalDelete<T>(entity, true);
@@ -220,7 +221,7 @@ namespace Nkv
         }
 
 
-        private void InternalLockEntity<T>(T entity, bool isLock) where T: Entity
+        private void InternalLockEntity<T>(T entity, bool isLock) where T : Entity
         {
             ValidateEntity(entity);
 
@@ -306,10 +307,10 @@ namespace Nkv
             }
 
             int i = 0;
-            int rowCount = reader.GetInt32(i++);            
+            int rowCount = reader.GetInt32(i++);
             var ackCode = reader.GetString(i++);
             timestamp = reader.IsDBNull(i++) ? Entity.DefaultTimestamp : reader.GetDateTime(i - 1);
-            version = reader.GetInt64(i++);
+            version = reader.IsDBNull(i++) ? 0 : reader.GetInt64(i - 1);
 
             if (rowCount != expectedRowCount || !string.Equals(ackCode, "Success", StringComparison.OrdinalIgnoreCase))
             {

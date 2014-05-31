@@ -49,8 +49,7 @@ namespace Nkv.Tests
                 session.CreateTable<Book>();
 
                 session.Insert(book); // insert
-                helper.AssertRowExists("Book", book.Key);
-
+                
                 var bookInstance2 = session.Select<Book>(book.Key);
 
                 session.Update(bookInstance2);

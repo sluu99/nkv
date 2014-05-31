@@ -2,42 +2,45 @@
 (
 	@key nvarchar(128),
 	@value nvarchar(max),
-	@timestamp datetime,
+	@version bigint,
 	@ignoreLock tinyint = 0
 ) as
 begin
-	declare @outputTable table ([RowTimestamp] datetime);
+	declare @outputTable table ([RowTimestamp] datetime, [RowVersion] bigint);
 	declare @rowTimestamp datetime = null;
 	declare @lockTimestamp datetime = null;
+	declare @rowVersion bigint = 0;
 	declare @rowCount int = 0;
 	declare @ackCode varchar(32);
-	declare @version bigint = 0;
 
 	update [{0}] set
 		[Value] = @value,
-		[Timestamp] = sysutcdatetime()
+		[Timestamp] = sysutcdatetime(),
+		[Version] = [Version] + 1
 	output
-		inserted.[Timestamp] into @outputTable
-	where [Key] = @key and [Timestamp] = @timestamp and (@ignoreLock = 1 or [LockTimestamp] is null);
+		inserted.[Timestamp], inserted.[Version] into @outputTable
+	where [Key] = @key and [Version] = @version and (@ignoreLock = 1 or [LockTimestamp] is null);
 		
 	set @ackCode = 'Success';
 
 	select @rowCount = count(1) from @outputTable;
-	select top 1 @rowTimestamp = [RowTimestamp] from @outputTable;
+	select top 1 @rowTimestamp = [RowTimestamp], @rowVersion = [RowVersion] from @outputTable;
 
 	if @rowCount <> 1
 	begin
 		set @rowTimestamp = null;
-		select @rowTimestamp = [Timestamp], @lockTimestamp = [LockTimestamp] from [{0}] where [Key] = @key;
+		set @rowVersion = null;
+		set @lockTimestamp = null;
+		select @rowTimestamp = [Timestamp], @lockTimestamp = [LockTimestamp], @rowVersion = [Version] from [{0}] where [Key] = @key;
 	
 		select @ackCode = 
 		case
 			when @rowTimestamp is null then 'KeyNotFound'
-			when @timestamp <> @rowTimestamp then 'VersionMismatch'
+			when @version <> @rowVersion then 'VersionMismatch'
 			when @lockTimestamp is not null then 'EntityLocked'
 			else 'Unknown'
 		end;
 	end
 
-	select @rowCount [RowCount], @ackCode [AckCode], @rowTimestamp [Timestamp], @version [Version];
+	select @rowCount [RowCount], @ackCode [AckCode], @rowTimestamp [Timestamp], @rowVersion [Version];
 end

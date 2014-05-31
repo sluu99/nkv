@@ -192,13 +192,13 @@ namespace Nkv.Sql
         }
 
 
-        public string GetUpdateQuery(string tableName, out string keyParamName, out string valueParamName, out string timestampParamName)
+        public string GetUpdateQuery(string tableName, out string keyParamName, out string valueParamName, out string versionParamName)
         {
             keyParamName = "@keyInput";
             valueParamName = "@valueInput";
-            timestampParamName = "@oldTimestampInput";
+            versionParamName = "@versionInput";
 
-            string query = "exec [nkv_Update{0}Entity] @key=@keyInput, @value=@valueInput, @timestamp=@oldTimestampInput";
+            string query = "exec [nkv_Update{0}Entity] @key=@keyInput, @value=@valueInput, @version=@versionInput";
 
             return string.Format(query, tableName);
         }
