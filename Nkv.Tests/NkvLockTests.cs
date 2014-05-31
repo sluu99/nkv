@@ -67,11 +67,11 @@ namespace Nkv.Tests
                 try
                 {
                     session.Lock(book);
-                    Assert.Fail("Expecting an NkvException with AckCode TimestampMismatch");
+                    Assert.Fail("Expecting an NkvException with AckCode VersionMismatch");
                 }
                 catch (NkvException ex)
                 {
-                    Assert.AreEqual(NkvAckCode.TimestampMismatch, ex.AckCode);
+                    Assert.AreEqual(NkvAckCode.VersionMismatch, ex.AckCode);
                 }
             }
         }
@@ -97,11 +97,11 @@ namespace Nkv.Tests
                 try
                 {
                     session.Unlock(book);
-                    Assert.Fail("Expecting an NkvException with AckCode TimestampMismatch");
+                    Assert.Fail("Expecting an NkvException with AckCode VersionMismatch");
                 }
                 catch (NkvException ex)
                 {
-                    Assert.AreEqual(NkvAckCode.TimestampMismatch, ex.AckCode);
+                    Assert.AreEqual(NkvAckCode.VersionMismatch, ex.AckCode);
                 }
             }
         }

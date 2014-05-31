@@ -56,11 +56,11 @@ namespace Nkv.Tests
                 try
                 {
                     session.Delete(book);
-                    Assert.Fail("Expecting an instance of NkvException with AckCode=TimestampMismatch");
+                    Assert.Fail("Expecting an instance of NkvException with AckCode=VersionMismatch");
                 }
                 catch (NkvException ex)
                 {
-                    Assert.AreEqual(NkvAckCode.TimestampMismatch, ex.AckCode);
+                    Assert.AreEqual(NkvAckCode.VersionMismatch, ex.AckCode);
                     Assert.AreEqual(bookInstance2.Timestamp, ex.Timestamp);
                 }
             }
@@ -199,11 +199,11 @@ namespace Nkv.Tests
                 try
                 {
                     session.ForceDelete(book);
-                    Assert.Fail("Expecting an instance of NkvException with AckCode=TimestampMismatch");
+                    Assert.Fail("Expecting an instance of NkvException with AckCode=VersionMismatch");
                 }
                 catch (NkvException ex)
                 {
-                    Assert.AreEqual(NkvAckCode.TimestampMismatch, ex.AckCode);
+                    Assert.AreEqual(NkvAckCode.VersionMismatch, ex.AckCode);
                     Assert.AreEqual(bookInstance2.Timestamp, ex.Timestamp);
                 }
             }

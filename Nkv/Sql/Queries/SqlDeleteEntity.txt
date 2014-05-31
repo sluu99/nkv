@@ -21,7 +21,7 @@ begin
 		set @ackCode =
 		case
 			when @rowTimestamp is null then 'KeyNotFound'
-			when @rowTimestamp <> @timestamp then 'TimestampMismatch'
+			when @rowTimestamp <> @timestamp then 'VersionMismatch'
 			when @lockTimestamp is not null then 'EntityLocked'
 			else 'Unknown'
 		end;

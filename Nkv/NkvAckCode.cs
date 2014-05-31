@@ -7,7 +7,7 @@ namespace Nkv
         Unknown = -1,
         KeyExists = 1,
         KeyNotFound = 2,
-        TimestampMismatch = 3,
+        VersionMismatch = 3,
         EntityLocked = 4
     }
 }

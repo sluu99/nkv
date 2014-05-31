@@ -34,7 +34,7 @@ begin
         set @ackCode =
         case
             when @rowTimestamp is null then 'KeyNotFound'
-            when @timestamp <> @rowTimestamp then 'TimestampMismatch'
+            when @timestamp <> @rowTimestamp then 'VersionMismatch'
             else 'Unknown'
         end;
     end

@@ -25,13 +25,12 @@ namespace Nkv.Tests
                 
                 session.Insert(book);
                 helper.AssertRowExists("Book", book.Key);
-                DateTime timestamp = book.Timestamp;
-
-                Thread.Sleep(1000);
+                
+                long version = book.Version;                               
 
                 session.Update(book);
                 helper.AssertRowExists("Book", book.Key);
-                Assert.AreNotEqual(timestamp, book.Timestamp);
+                Assert.AreNotEqual(version, book.Version);
             }
         }
 
@@ -54,18 +53,17 @@ namespace Nkv.Tests
 
                 var bookInstance2 = session.Select<Book>(book.Key);
 
-                Thread.Sleep(1000); // make sure the time changes                
                 session.Update(bookInstance2);
-                Assert.AreNotEqual(book.Timestamp, bookInstance2.Timestamp);
+                Assert.AreNotEqual(book.Version, bookInstance2.Version);
 
                 try
                 {
                     session.Update(book);
-                    Assert.Fail("Expecting an instance of NkvException thrown with AckCode=TimestampMismatch");
+                    Assert.Fail("Expecting an instance of NkvException thrown with AckCode=VersionMismatch");
                 }
                 catch (NkvException ex)
                 {
-                    Assert.AreEqual(NkvAckCode.TimestampMismatch, ex.AckCode);
+                    Assert.AreEqual(NkvAckCode.VersionMismatch, ex.AckCode);
                 }
             }
         }
