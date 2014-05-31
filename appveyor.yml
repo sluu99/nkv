@@ -1,0 +1,14 @@
+services:
+  - mssql2012sp1
+
+environment:
+  NTicket_Tests_SqlConnectionString: Server=(local)\SQL2012SP1;Database=master;User ID=sa;Password=Password12!
+  NTicket_Tests_SqlDatabase: master
+  NTicket_Tests_SqlMasterConnectionString: Server=(local)\SQL2012SP1;Database=master;User ID=sa;Password=Password12!
+
+assembly_info:
+  patch: true
+  file: AssemblyInfo.*
+  assembly_version: "1.0.{build}"
+  assembly_file_version: "{version}"
+  assembly_informational_version: "{version}"

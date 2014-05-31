@@ -11,11 +11,23 @@ namespace Nkv.Tests.Sql
     public class SqlTestHelper : ITestHelper
     {
         #region Static fields
-                
-        public const string SqlConnectionString = "server=localhost;database=nkv_test;trusted_connection=true";
-        public const string SqlDatabase = "nkv_test";
 
-        private const string SqlMasterConnectionString = "server=localhost;database=master;trusted_connection=true";
+        public static string SqlConnectionString { get; private set; }
+        public static string SqlDatabase { get; private set; }
+
+        private static string SqlMasterConnectionString { get; set; }
+
+        static SqlTestHelper()
+        {
+            SqlConnectionString =
+                Environment.GetEnvironmentVariable("Nkv_Tests_SqlConnectionString") ??
+                "server=localhost;database=nkv_test;trusted_connection=true";
+            SqlDatabase = Environment.GetEnvironmentVariable("Nkv_Tests_SqlDatabase") ?? "nkv_test";
+            SqlMasterConnectionString =
+                Environment.GetEnvironmentVariable("Nkv_Tests_SqlMasterConnectionString") ??
+                "server=localhost;database=master;trusted_connection=true";
+        }
+
 
         private SqlProvider _connectionProviderField;
         private object _padLock = new object();
@@ -102,6 +114,11 @@ namespace Nkv.Tests.Sql
 
         public void DropDatabase()
         {
+            if (string.Equals(SqlDatabase, "master", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
             string query =
                 @"if exists (select 1 from dbo.sysdatabases where name = '{0}') 
                 begin
@@ -114,6 +131,11 @@ namespace Nkv.Tests.Sql
 
         public void CreateDatabase()
         {
+            if (string.Equals(SqlDatabase, "master", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
             ExecuteSqlMasterQuery(string.Format("create database [{0}]", SqlDatabase));
         }
     }
