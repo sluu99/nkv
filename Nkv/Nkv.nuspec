@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>Nkv</id>
+    <version>$version$</version>
+    <authors>Steven Luu</authors>
+    <owners>Steven Luu</owners>
+    <projectUrl>http://github.com/sluu99/nkv</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Key value store backed by ADO.NET</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright Steven Luu 2014</copyright>
+    <tags>nkv</tags>
+    <dependencies>
+      <dependency id="Newtonsoft.Json" version="4.5.11" />
+    </dependencies>
+  </metadata>
+</package>

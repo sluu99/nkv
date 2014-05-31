@@ -46,5 +46,107 @@ namespace Nkv.Tests
                 session.Unlock(book); // should not throw an exception if the entity is not locked
             }
         }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestLock_entity_modified()
+        {
+            var nkv = TestConfiguration.CreateNkv(TestContext);
+            var book = Book.Generate();
+
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+                session.Insert(book);
+
+                var book2 = session.Select<Book>(book.Key);
+                book.Pages++;
+                session.Update(book2);
+
+                try
+                {
+                    session.Lock(book);
+                    Assert.Fail("Expecting an NkvException with AckCode TimestampMismatch");
+                }
+                catch (NkvException ex)
+                {
+                    Assert.AreEqual(NkvAckCode.TimestampMismatch, ex.AckCode);
+                }
+            }
+        }
+        
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestUnlock_entity_modified()
+        {
+            var nkv = TestConfiguration.CreateNkv(TestContext);
+            var book = Book.Generate();
+
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+                session.Insert(book);
+
+                var book2 = session.Select<Book>(book.Key);
+                book.Pages++;
+                session.Update(book2);
+
+                try
+                {
+                    session.Unlock(book);
+                    Assert.Fail("Expecting an NkvException with AckCode TimestampMismatch");
+                }
+                catch (NkvException ex)
+                {
+                    Assert.AreEqual(NkvAckCode.TimestampMismatch, ex.AckCode);
+                }
+            }
+        }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestLock_not_found()
+        {
+            var nkv = TestConfiguration.CreateNkv(TestContext);
+            var book = Book.Generate();
+
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+                
+                try
+                {
+                    session.Lock(book);
+                    Assert.Fail("Expecting an NkvException with AckCode KeyNotFound");
+                }
+                catch (NkvException ex)
+                {
+                    Assert.AreEqual(NkvAckCode.KeyNotFound, ex.AckCode);
+                }
+            }
+        }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\Implementations.xml", "Implementation", DataAccessMethod.Sequential)]
+        public void TestUnlock_not_found()
+        {
+            var nkv = TestConfiguration.CreateNkv(TestContext);
+            var book = Book.Generate();
+
+            using (var session = nkv.BeginSession())
+            {
+                session.CreateTable<Book>();
+
+                try
+                {
+                    session.Unlock(book);
+                    Assert.Fail("Expecting an NkvException with AckCode KeyNotFound");
+                }
+                catch (NkvException ex)
+                {
+                    Assert.AreEqual(NkvAckCode.KeyNotFound, ex.AckCode);
+                }
+            }
+        }
     }
 }
