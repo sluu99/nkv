@@ -21,6 +21,9 @@ branches:
 configuration: Release
 platform: AnyCPU
 
+before_build:
+  - nuget restore
+
 build:
   publish_nuget: true
 
