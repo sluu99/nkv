@@ -31,200 +31,76 @@ namespace Nkv
         public void Init<T>() where T : Entity
         {
             var tableName = TableAttribute.GetTableName(typeof(T));
-            var queries = Provider.GetInitQueries(tableName);
-
-            foreach (var query in queries)
-            {
-                ExecuteNonQuery(query);
-            }
+            Init(tableName);
         }
 
         public long Count<T>() where T : Entity
         {
             var tableName = TableAttribute.GetTableName(typeof(T));
-            var query = Provider.GetCountQuery(tableName);
-            long count = 0;
-
-            Action<IDataReader> readerCallback = (reader) =>
-            {
-                if (!reader.Read())
-                {
-                    throw new DataException("Count query did not return any data");
-                }
-                count = reader.GetInt64(0);
-            };
-
-            ExecuteReader(query, readerCallback);
-
-            return count;
+            return Count(tableName);
         }
 
         public T Select<T>(string key) where T : Entity
         {
-            if (string.IsNullOrWhiteSpace(key))
-            {
-                throw new ArgumentException("Key cannot be null or white space");
-            }
-
-            string keyParamName;
-            string query = Provider.GetSelectQuery(TableAttribute.GetTableName(typeof(T)), out keyParamName);
-            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, key, Entity.MaxKeySize);
-
-            var entities = new List<T>();
-
-            ExecuteReader(query, (r) => ReadEntitiesFromReader(r, entities), keyParam);
-            return entities.FirstOrDefault();
+            return Select<T>(TableAttribute.GetTableName(typeof(T)), key);
         }
 
         public T[] SelectPrefix<T>(string prefix) where T : Entity
         {
-            if (string.IsNullOrWhiteSpace(prefix))
-            {
-                throw new ArgumentException("Prefix cannot be null or white space");
-            }
-
             var tableName = TableAttribute.GetTableName(typeof(T));
-            string prefixParamName;
-            var query = Provider.GetSelectPrefixQuery(tableName, ref prefix, out prefixParamName);
-            var prefixParam = Provider.CreateParameter(prefixParamName, SqlDbType.NVarChar, prefix);
 
-            List<T> entities = new List<T>();
-
-            ExecuteReader(query, (r) => ReadEntitiesFromReader(r, entities), prefixParam);
-
-            return entities.ToArray();
+            return SelectPrefix<T>(tableName, prefix);
         }
 
         public T[] SelectMany<T>(params string[] keys) where T : Entity
         {
-            if (keys == null || keys.Length < 1)
-            {
-                return new T[0];
-            }
-
-            string[] keyParamNames;
             var tableName = TableAttribute.GetTableName(typeof(T));
-            string query = Provider.GetSelectManyQuery(tableName, keys.Length, out keyParamNames);
-
-            var keyParams = new IDbDataParameter[keys.Length];
-            for (int i = 0; i < keys.Length; i++)
-            {
-                if (string.IsNullOrWhiteSpace(keys[i]))
-                {
-                    throw new ArgumentException("One of the keys are null or white spaces");
-                }
-
-                keyParams[i] = Provider.CreateParameter(keyParamNames[i], SqlDbType.NVarChar, keys[i], Entity.MaxKeySize);
-            }
-
-            var entities = new List<T>();
-
-            ExecuteReader(query, (r) => ReadEntitiesFromReader(r, entities), keyParams);
-
-            return entities.ToArray();
+            return SelectMany<T>(tableName, keys);
         }
 
         public T[] SelectAll<T>(long skip, int take) where T : Entity
         {
-            if (skip < 0)
-            {
-                throw new ArgumentException("Skip cannot be negative");
-            }
-            if (take < 1)
-            {
-                throw new ArgumentException("Take must be greater than zero");
-            }
-
             string tableName = TableAttribute.GetTableName(typeof(T));
-            string query = Provider.GetSelectAllQuery(tableName, skip, take);
-            var entities = new List<T>();
-
-
-            ExecuteReader(query, (r) => ReadEntitiesFromReader(r, entities));
-
-            return entities.ToArray();
+            return SelectAll<T>(tableName, skip, take);
         }
 
         public void Insert<T>(T entity) where T : Entity
         {
-            ValidateEntity(entity);
-
-            var json = JsonConvert.SerializeObject(entity);
-
             string tableName = TableAttribute.GetTableName(typeof(T));
-            string keyParamName;
-            string valueParamName;
-            string query = Provider.GetInsertQuery(tableName, out keyParamName, out valueParamName);
-            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, size: Entity.MaxKeySize);
-            var valueParam = Provider.CreateParameter(valueParamName, SqlDbType.NVarChar, json);
-
-            Action<IDataReader> readerCallback = (reader) =>
-            {
-                DateTime timestamp;
-                long version;
-                ValidateReaderResult(reader, 1, string.Format("Error inserting {0} entity with key={1}", tableName, entity.Key), out timestamp, out version);
-                entity.Timestamp = timestamp;
-                entity.Version = version;
-            };
-
-            ExecuteReader(query, readerCallback, keyParam, valueParam);
-
+            Insert(tableName, entity);
         }
 
         public void Update<T>(T entity) where T : Entity
         {
-            ValidateEntity(entity);
-
-            string keyParamName;
-            string valueParamName;
-            string versionParamName;
             string tableName = TableAttribute.GetTableName(typeof(T));
-            string query = Provider.GetUpdateQuery(tableName, out keyParamName, out valueParamName, out versionParamName);
-
-            var json = JsonConvert.SerializeObject(entity);
-            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, size: Entity.MaxKeySize);
-            var valueParam = Provider.CreateParameter(valueParamName, SqlDbType.NVarChar, json);
-            var versionParam = Provider.CreateParameter(versionParamName, SqlDbType.BigInt, entity.Version);
-
-            Action<IDataReader> readerCallback = (reader) =>
-            {
-                DateTime timestamp;
-                long version;
-                ValidateReaderResult(reader, 1, string.Format("Error updating {0} entity with key={1}", tableName, entity.Key), out timestamp, out version);
-
-                entity.Timestamp = timestamp;
-                entity.Version = version;
-            };
-
-            ExecuteReader(query, readerCallback, keyParam, valueParam, versionParam);
+            Update(tableName, entity);
         }
 
         public void Delete<T>(T entity) where T : Entity
         {
-            InternalDelete<T>(entity, false);
+            Delete(TableAttribute.GetTableName(typeof(T)), entity);
         }
 
         public void ForceDelete<T>(T entity) where T : Entity
         {
-            InternalDelete<T>(entity, true);
+            ForceDelete(TableAttribute.GetTableName(typeof(T)), entity);
         }
 
         public void Lock<T>(T entity) where T : Entity
         {
-            InternalLockEntity(entity, true);
+            Lock(TableAttribute.GetTableName(typeof(T)), entity);
         }
 
         public void Unlock<T>(T entity) where T : Entity
         {
-            InternalLockEntity(entity, false);
+            Unlock(TableAttribute.GetTableName(typeof(T)), entity);
         }
 
 
-        private void InternalLockEntity<T>(T entity, bool isLock) where T : Entity
+        private void InternalLockEntity<T>(string tableName, T entity, bool isLock) where T : Entity
         {
             ValidateEntity(entity);
 
-            string tableName = TableAttribute.GetTableName(typeof(T));
             string keyParamName;
             string versionParamName;
             string query = isLock ?
@@ -254,11 +130,10 @@ namespace Nkv
             ExecuteReader(query, readerCallback, keyParam, versionParam);
         }
 
-        private void InternalDelete<T>(T entity, bool forceDelete) where T : Entity
+        private void InternalDelete<T>(string tableName, T entity, bool forceDelete) where T : Entity
         {
             ValidateEntity(entity);
 
-            string tableName = TableAttribute.GetTableName(typeof(T));
             string keyParamName;
             string versionParamName;
             string query = forceDelete ?
@@ -278,6 +153,191 @@ namespace Nkv
             };
 
             ExecuteReader(query, readerCallback, keyParam, versionParam);
+        }
+
+        public void Init(string tableName)
+        {
+            var queries = Provider.GetInitQueries(tableName);
+
+            foreach (var query in queries)
+            {
+                ExecuteNonQuery(query);
+            }
+        }
+
+        public T Select<T>(string tableName, string key) where T : Entity
+        {
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                throw new ArgumentException("Key cannot be null or white space");
+            }
+
+            string keyParamName;
+            string query = Provider.GetSelectQuery(tableName, out keyParamName);
+            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, key, Entity.MaxKeySize);
+
+            var entities = new List<T>();
+
+            ExecuteReader(query, (r) => ReadEntitiesFromReader(r, entities), keyParam);
+            return entities.FirstOrDefault();
+        }
+
+        public T[] SelectPrefix<T>(string tableName, string prefix) where T : Entity
+        {
+            if (string.IsNullOrWhiteSpace(prefix))
+            {
+                throw new ArgumentException("Prefix cannot be null or white space");
+            }
+
+            string prefixParamName;
+            var query = Provider.GetSelectPrefixQuery(tableName, ref prefix, out prefixParamName);
+            var prefixParam = Provider.CreateParameter(prefixParamName, SqlDbType.NVarChar, prefix);
+
+            List<T> entities = new List<T>();
+
+            ExecuteReader(query, (r) => ReadEntitiesFromReader(r, entities), prefixParam);
+
+            return entities.ToArray();
+        }
+
+        public T[] SelectMany<T>(string tableName, params string[] keys) where T : Entity
+        {
+            if (keys == null || keys.Length < 1)
+            {
+                return new T[0];
+            }
+
+            string[] keyParamNames;
+            string query = Provider.GetSelectManyQuery(tableName, keys.Length, out keyParamNames);
+
+            var keyParams = new IDbDataParameter[keys.Length];
+            for (int i = 0; i < keys.Length; i++)
+            {
+                if (string.IsNullOrWhiteSpace(keys[i]))
+                {
+                    throw new ArgumentException("One of the keys are null or white spaces");
+                }
+
+                keyParams[i] = Provider.CreateParameter(keyParamNames[i], SqlDbType.NVarChar, keys[i], Entity.MaxKeySize);
+            }
+
+            var entities = new List<T>();
+
+            ExecuteReader(query, (r) => ReadEntitiesFromReader(r, entities), keyParams);
+
+            return entities.ToArray();
+        }
+
+        public T[] SelectAll<T>(string tableName, long skip, int take) where T : Entity
+        {
+            if (skip < 0)
+            {
+                throw new ArgumentException("Skip cannot be negative");
+            }
+            if (take < 1)
+            {
+                throw new ArgumentException("Take must be greater than zero");
+            }
+
+            string query = Provider.GetSelectAllQuery(tableName, skip, take);
+            var entities = new List<T>();
+
+
+            ExecuteReader(query, (r) => ReadEntitiesFromReader(r, entities));
+
+            return entities.ToArray();
+        }
+
+        public void Insert<T>(string tableName, T entity) where T : Entity
+        {
+            ValidateEntity(entity);
+
+            var json = JsonConvert.SerializeObject(entity);
+
+
+            string keyParamName;
+            string valueParamName;
+            string query = Provider.GetInsertQuery(tableName, out keyParamName, out valueParamName);
+            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, size: Entity.MaxKeySize);
+            var valueParam = Provider.CreateParameter(valueParamName, SqlDbType.NVarChar, json);
+
+            Action<IDataReader> readerCallback = (reader) =>
+            {
+                DateTime timestamp;
+                long version;
+                ValidateReaderResult(reader, 1, string.Format("Error inserting {0} entity with key={1}", tableName, entity.Key), out timestamp, out version);
+                entity.Timestamp = timestamp;
+                entity.Version = version;
+            };
+
+            ExecuteReader(query, readerCallback, keyParam, valueParam);
+        }
+
+        public void Update<T>(string tableName, T entity) where T : Entity
+        {
+            ValidateEntity(entity);
+
+            string keyParamName;
+            string valueParamName;
+            string versionParamName;
+
+            string query = Provider.GetUpdateQuery(tableName, out keyParamName, out valueParamName, out versionParamName);
+
+            var json = JsonConvert.SerializeObject(entity);
+            var keyParam = Provider.CreateParameter(keyParamName, SqlDbType.NVarChar, entity.Key, size: Entity.MaxKeySize);
+            var valueParam = Provider.CreateParameter(valueParamName, SqlDbType.NVarChar, json);
+            var versionParam = Provider.CreateParameter(versionParamName, SqlDbType.BigInt, entity.Version);
+
+            Action<IDataReader> readerCallback = (reader) =>
+            {
+                DateTime timestamp;
+                long version;
+                ValidateReaderResult(reader, 1, string.Format("Error updating {0} entity with key={1}", tableName, entity.Key), out timestamp, out version);
+
+                entity.Timestamp = timestamp;
+                entity.Version = version;
+            };
+
+            ExecuteReader(query, readerCallback, keyParam, valueParam, versionParam);
+        }
+
+        public void Delete<T>(string tableName, T entity) where T : Entity
+        {
+            InternalDelete<T>(tableName, entity, false);
+        }
+
+        public void ForceDelete<T>(string tableName, T entity) where T : Entity
+        {
+            InternalDelete<T>(tableName, entity, true);
+        }
+
+        public void Lock<T>(string tableName, T entity) where T : Entity
+        {
+            InternalLockEntity(tableName, entity, true);
+        }
+
+        public void Unlock<T>(string tableName, T entity) where T : Entity
+        {
+            InternalLockEntity(tableName, entity, false);
+        }
+
+        public long Count(string tableName)
+        {
+            var query = Provider.GetCountQuery(tableName);
+            long count = 0;
+
+            Action<IDataReader> readerCallback = (reader) =>
+            {
+                if (!reader.Read())
+                {
+                    throw new DataException("Count query did not return any data");
+                }
+                count = reader.GetInt64(0);
+            };
+
+            ExecuteReader(query, readerCallback);
+
+            return count;
         }
 
         #region Helper methods

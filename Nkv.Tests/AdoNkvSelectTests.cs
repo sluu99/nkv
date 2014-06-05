@@ -254,7 +254,7 @@ namespace Nkv.Tests
                     session.Insert(books[i]);
                 }
 
-                var selectManyBooks = session.SelectMany<Book>(books[0].Key, books[1].Key, Guid.NewGuid().ToString());
+                var selectManyBooks = session.SelectMany<Book>(new string[] { books[0].Key, books[1].Key, Guid.NewGuid().ToString() });
 
                 Assert.IsNotNull(selectManyBooks);
                 Assert.AreEqual(2, selectManyBooks.Length);
@@ -279,7 +279,7 @@ namespace Nkv.Tests
                     session.Insert(books[i]);
                 }
 
-                var selectManyBooks = session.SelectMany<Book>(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+                var selectManyBooks = session.SelectMany<Book>(new string[] { Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString() });
 
                 Assert.IsNotNull(selectManyBooks);
                 Assert.AreEqual(0, selectManyBooks.Length);
